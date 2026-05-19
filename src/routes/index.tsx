@@ -30,14 +30,11 @@ function GoogleIcon() {
 function SignInScreen() {
   const navigate = useNavigate();
 
-  const handleGoogle = () => {
-    // TODO: wire to Supabase Auth (Google OAuth)
-    navigate({ to: "/" });
-  };
-
-  const handleEmail = () => {
-    // TODO: wire to Supabase Auth (email)
-    navigate({ to: "/" });
+  const handleContinue = () => {
+    // TODO: wire to Supabase Auth (Google + email)
+    const hasBrand =
+      typeof window !== "undefined" && localStorage.getItem("forwardit.brand");
+    navigate({ to: hasBrand ? "/generate" : "/brand-setup" });
   };
 
   return (
@@ -54,7 +51,7 @@ function SignInScreen() {
 
         <div className="mt-auto flex flex-col gap-3 pt-16">
           <Button
-            onClick={handleGoogle}
+            onClick={handleContinue}
             size="lg"
             className="w-full h-12 text-base font-medium rounded-xl"
           >
@@ -63,7 +60,7 @@ function SignInScreen() {
           </Button>
 
           <Button
-            onClick={handleEmail}
+            onClick={handleContinue}
             variant="outline"
             size="lg"
             className="w-full h-12 text-base font-medium rounded-xl border-input"
