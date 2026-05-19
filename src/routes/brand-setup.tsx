@@ -1,0 +1,191 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useRef, useState, type ChangeEvent } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Upload, ImageIcon } from "lucide-react";
+
+export const Route = createFileRoute("/brand-setup")({
+  head: () => ({
+    meta: [{ title: "Set up your brand — Forwardit" }],
+  }),
+  component: BrandSetupScreen,
+});
+
+// Crude average-color extraction for a quick brand-color guess from the logo.
+function extractDominantColor(img: HTMLImageElement): string {
+  const canvas = document.createElement("canvas");
+  const size = 32;
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return "#006AFF";
+  ctx.drawImage(img, 0, 0, size, size);
+  const { data } = ctx.getImageData(0, 0, size, size);
+  let r = 0,
+    g = 0,
+    b = 0,
+    count = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    const alpha = data[i + 3];
+    if (alpha < 128) continue;
+    const cr = data[i],
+      cg = data[i + 1],
+      cb = data[i + 2];
+    // skip near-white and near-black pixels
+    const max = Math.max(cr, cg, cb);
+    const min = Math.min(cr, cg, cb);
+    if (max > 240 && min > 240) continue;
+    if (max < 20) continue;
+    r += cr;
+    g += cg;
+    b += cb;
+    count++;
+  }
+  if (!count) return "#006AFF";
+  r = Math.round(r / count);
+  g = Math.round(g / count);
+  b = Math.round(b / count);
+  return `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function BrandSetupScreen() {
+  const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [businessName, setBusinessName] = useState("");
+  const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
+  const [brandColor, setBrandColor] = useState<string>("");
+
+  const canSubmit =
+    businessName.trim().length > 0 && logoDataUrl !== null && brandColor !== "";
+
+  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setLogoDataUrl(dataUrl);
+      const img = new Image();
+      img.onload = () => setBrandColor(extractDominantColor(img));
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = () => {
+    // TODO: persist to Supabase
+    localStorage.setItem(
+      "forwardit.brand",
+      JSON.stringify({ businessName, logoDataUrl, brandColor }),
+    );
+    navigate({ to: "/generate" });
+  };
+
+  return (
+    <main className="min-h-[100dvh] bg-background flex justify-center">
+      <div className="w-full max-w-[430px] flex flex-col px-6 pt-12 pb-10">
+        <header>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Set up your brand
+          </h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Done once. Used on every image.
+          </p>
+        </header>
+
+        <div className="mt-8 flex flex-col gap-6">
+          {/* Business name */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="business-name" className="text-sm font-medium">
+              Business name
+            </Label>
+            <Input
+              id="business-name"
+              placeholder="e.g. Sharma Electronics"
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+              className="h-12 rounded-xl text-base"
+            />
+          </div>
+
+          {/* Logo upload */}
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium">Your Logo (PNG preferred)</Label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/svg+xml"
+              onChange={handleFile}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="group flex items-center gap-3 rounded-xl border border-dashed border-input bg-muted/30 px-4 py-4 text-left transition-colors hover:bg-muted/60"
+            >
+              <div className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-background border border-input overflow-hidden">
+                {logoDataUrl ? (
+                  <img
+                    src={logoDataUrl}
+                    alt="Logo preview"
+                    className="size-full object-contain"
+                  />
+                ) : (
+                  <ImageIcon className="size-5 text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-foreground">
+                  {logoDataUrl ? "Replace logo" : "Tap to upload"}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  PNG with transparent background works best
+                </span>
+              </div>
+              <Upload className="ml-auto size-4 text-muted-foreground" />
+            </button>
+          </div>
+
+          {/* Brand color */}
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium">Brand Colour</Label>
+            <div className="flex items-center gap-3 rounded-xl border border-input bg-background px-3 py-2.5">
+              <label
+                className="relative size-10 shrink-0 rounded-lg border border-input overflow-hidden cursor-pointer"
+                style={{ backgroundColor: brandColor || "#f1f1f1" }}
+              >
+                <input
+                  type="color"
+                  value={brandColor || "#006AFF"}
+                  onChange={(e) => setBrandColor(e.target.value)}
+                  className="absolute inset-0 size-full opacity-0 cursor-pointer"
+                  aria-label="Pick brand colour"
+                />
+              </label>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium uppercase tracking-wide">
+                  {brandColor || "Auto-extracted from logo"}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Tap the swatch to change
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-auto pt-10">
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            size="lg"
+            className="w-full h-12 text-base font-medium rounded-xl"
+          >
+            Save & Continue
+          </Button>
+        </div>
+      </div>
+    </main>
+  );
+}
