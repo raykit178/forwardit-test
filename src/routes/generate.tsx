@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Check, AlertTriangle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Check, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/generate")({
   head: () => ({
@@ -155,42 +156,16 @@ function GenerateScreen() {
         {showSelectors && (
           <div className="animate-fade-in">
             {/* Occasion */}
-            <section className="pt-6">
-              <h2 className="px-5 text-sm font-semibold text-foreground">
+            <section className="pt-6 px-5">
+              <h2 className="text-sm font-semibold text-foreground">
                 Choose an occasion
               </h2>
-              <div className="mt-3 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {OCCASIONS.map((o) => {
-                  const selected = occasion === o;
-                  return (
-                    <button
-                      key={o}
-                      onClick={() => setOccasion(o)}
-                      className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                        selected
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-input bg-background text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {o}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={() => {
-                    const custom = window.prompt("Enter custom occasion");
-                    if (custom?.trim()) setOccasion(custom.trim());
-                  }}
-                  className={`shrink-0 inline-flex items-center gap-1 rounded-full border border-dashed px-4 py-2 text-sm font-medium transition-colors ${
-                    occasion && !OCCASIONS.includes(occasion)
-                      ? "border-primary text-primary"
-                      : "border-input text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  <Plus className="size-3.5" />
-                  {occasion && !OCCASIONS.includes(occasion) ? occasion : "Custom"}
-                </button>
-              </div>
+              <Input
+                value={occasion ?? ""}
+                onChange={(e) => setOccasion(e.target.value)}
+                placeholder="e.g. Diwali, Holi, Store Anniversary..."
+                className="mt-3 h-11 rounded-xl text-base"
+              />
             </section>
 
             {/* Style */}
