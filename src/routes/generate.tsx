@@ -158,7 +158,7 @@ function GenerateScreen() {
             {/* Occasion */}
             <section className="pt-6 px-5">
               <h2 className="text-sm font-semibold text-foreground">
-                Choose an occasion
+                Enter an occasion
               </h2>
               <Input
                 value={occasion ?? ""}
