@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Check, AlertTriangle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Check, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/generate")({
   head: () => ({
