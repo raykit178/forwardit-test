@@ -310,6 +310,9 @@ function GenerateScreen() {
               >
                 Generate Another
               </Button>
+              <p className="text-center text-xs text-muted-foreground mt-2">
+                Something looks off? Take a screenshot and WhatsApp me at xxxxx
+              </p>
             </div>
           </section>
         )}
