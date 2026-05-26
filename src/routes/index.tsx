@@ -104,10 +104,12 @@ function SignInScreen() {
     setError(null);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
     if (error) setError(error.message);
   };
+
+
 
   const handleEmail = async () => {
     if (!email) return;
@@ -115,7 +117,7 @@ function SignInScreen() {
     setError(null);
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
     setSending(false);
     if (error) setError(error.message);
