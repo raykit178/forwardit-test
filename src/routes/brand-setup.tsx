@@ -219,13 +219,16 @@ function BrandSetupScreen() {
         </div>
 
         <div className="mt-auto pt-10">
+          {error && (
+            <p className="mb-3 text-xs text-destructive text-center">{error}</p>
+          )}
           <Button
             onClick={handleSubmit}
             disabled={!canSubmit}
             size="lg"
             className="w-full h-12 text-base font-medium rounded-xl"
           >
-            Save & Continue
+            {saving ? "Saving..." : "Save & Continue"}
           </Button>
         </div>
       </div>
