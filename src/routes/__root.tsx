@@ -116,10 +116,19 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [sessionReady, setSessionReady] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(() => setSessionReady(true));
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+      setSessionReady(true);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      {sessionReady ? <Outlet /> : <div className="min-h-screen w-screen bg-white" />}
     </QueryClientProvider>
   );
 }
