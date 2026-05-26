@@ -38,24 +38,67 @@ function SignInScreen() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // If session already exists, route based on profile presence.
+  // Show a loader while we resolve the session, otherwise users returning
+  // from a magic link briefly see the login screen before being redirected.
+  const hasAuthInUrl =
+    typeof window !== "undefined" &&
+    (window.location.hash.includes("access_token") ||
+      window.location.search.includes("code="));
+  const [checkingSession, setCheckingSession] = useState(hasAuthInUrl);
+
+  // Route based on session + profile. Runs on initial load and whenever the
+  // auth state changes (including after detectSessionInUrl parses the magic
+  // link token from the URL).
   useEffect(() => {
+    let cancelled = false;
+    let routed = false;
+
     const route = async (userId: string) => {
+      if (routed) return;
+      routed = true;
       const { data } = await supabase
         .from("profiles")
         .select("id")
         .eq("id", userId)
         .maybeSingle();
+      if (cancelled) return;
+      // Clean the auth token from the URL.
+      if (typeof window !== "undefined" && (window.location.hash || window.location.search.includes("code="))) {
+        window.history.replaceState({}, "", window.location.pathname);
+      }
       navigate({ to: data ? "/generate" : "/brand-setup" });
     };
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) route(data.session.user.id);
-    });
+
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (s?.user) route(s.user.id);
+      if (s?.user) {
+        route(s.user.id);
+      } else {
+        setCheckingSession(false);
+      }
     });
-    return () => sub.subscription.unsubscribe();
-  }, [navigate]);
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return;
+      if (data.session?.user) {
+        route(data.session.user.id);
+      } else if (!hasAuthInUrl) {
+        setCheckingSession(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
+  }, [navigate, hasAuthInUrl]);
+
+  if (checkingSession) {
+    return (
+      <main className="min-h-[100dvh] bg-background flex items-center justify-center">
+        <div className="text-sm text-muted-foreground">Signing you in…</div>
+      </main>
+    );
+  }
 
   const handleGoogle = async () => {
     setError(null);
