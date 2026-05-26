@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, ImageIcon } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/brand-setup")({
   head: () => ({
@@ -54,14 +55,27 @@ function BrandSetupScreen() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [businessName, setBusinessName] = useState("");
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [brandColor, setBrandColor] = useState<string>("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) navigate({ to: "/" });
+    });
+  }, [navigate]);
 
   const canSubmit =
-    businessName.trim().length > 0 && logoDataUrl !== null && brandColor !== "";
+    businessName.trim().length > 0 &&
+    logoDataUrl !== null &&
+    brandColor !== "" &&
+    !saving;
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setLogoFile(file);
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
@@ -73,13 +87,42 @@ function BrandSetupScreen() {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = () => {
-    // TODO: persist to Supabase
-    localStorage.setItem(
-      "forwardit.brand",
-      JSON.stringify({ businessName, logoDataUrl, brandColor }),
-    );
-    navigate({ to: "/generate" });
+  const handleSubmit = async () => {
+    if (!logoFile) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const user = sessionData.session?.user;
+      if (!user) throw new Error("Not signed in");
+
+      const path = `${user.id}/logo.png`;
+      const { error: upErr } = await supabase.storage
+        .from("logos")
+        .upload(path, logoFile, { upsert: true, contentType: logoFile.type });
+      if (upErr) throw upErr;
+
+      const { data: pub } = supabase.storage.from("logos").getPublicUrl(path);
+      const logo_url = pub.publicUrl;
+
+      const { error: insErr } = await supabase.from("profiles").upsert({
+        id: user.id,
+        business_name: businessName,
+        logo_url,
+        brand_colour: brandColor,
+      });
+      if (insErr) throw insErr;
+
+      localStorage.setItem(
+        "forwardit.brand",
+        JSON.stringify({ businessName, logoDataUrl: logo_url, brandColor }),
+      );
+      navigate({ to: "/generate" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
