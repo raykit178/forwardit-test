@@ -58,8 +58,8 @@ function SignInScreen() {
       routed = true;
       const { data } = await supabase
         .from("profiles")
-        .select("id")
-        .eq("id", userId)
+        .select("user_id")
+        .eq("user_id", userId)
         .maybeSingle();
       if (cancelled) return;
       // Clean the auth token from the URL.

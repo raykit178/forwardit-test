@@ -29,8 +29,8 @@ function AuthCallback() {
 
         const { data: profile } = await supabase
           .from("profiles")
-          .select("id")
-          .eq("id", session.user.id)
+          .select("user_id")
+          .eq("user_id", session.user.id)
           .maybeSingle();
 
         if (cancelled) return;
