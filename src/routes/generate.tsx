@@ -30,7 +30,7 @@ type Brand = { businessName: string; logoDataUrl: string | null; brandColor: str
 type Phase = "idle" | "loading" | "result" | "error";
 
 const FREE_LIMIT = 3;
-const PAID_LIMIT = 30;
+const PAID_LIMIT = 10;
 
 function GenerateScreen() {
   const navigate = useNavigate();
@@ -47,23 +47,25 @@ function GenerateScreen() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const [usedThisMonth, setUsedThisMonth] = useState(0);
+  const [usedCount, setUsedCount] = useState(0);
   const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const limit = isSubscribed ? PAID_LIMIT : FREE_LIMIT;
-  const credits = Math.max(0, limit - usedThisMonth);
-  const overLimit = usedThisMonth >= limit;
+  const overLimit = usedCount >= limit;
 
   const loadUsage = async (uid: string) => {
-    const start = new Date();
-    start.setDate(1);
-    start.setHours(0, 0, 0, 0);
-    const { count } = await supabase
+    let query = supabase
       .from("generations")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", uid)
-      .gte("created_at", start.toISOString());
-    setUsedThisMonth(count ?? 0);
+      .eq("user_id", uid);
+    if (isSubscribed) {
+      const start = new Date();
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+      query = query.gte("created_at", start.toISOString());
+    }
+    const { count } = await query;
+    setUsedCount(count ?? 0);
   };
 
   useEffect(() => {
@@ -200,14 +202,20 @@ function GenerateScreen() {
             <Lock className="size-7" />
           </div>
           <h1 className="mt-5 text-xl font-bold text-foreground">
-            You've used all {limit} free images this month
+            {isSubscribed
+              ? "You've used all your images for this month"
+              : `You've used all ${FREE_LIMIT} free images`}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Upgrade to continue generating images
+            {isSubscribed
+              ? "Resets on the 1st."
+              : "Upgrade to continue generating images"}
           </p>
-          <Button size="lg" className="mt-8 h-12 px-8 rounded-xl">
-            Upgrade
-          </Button>
+          {!isSubscribed && (
+            <Button size="lg" className="mt-8 h-12 px-8 rounded-xl">
+              Upgrade
+            </Button>
+          )}
         </div>
       </main>
     );
@@ -228,7 +236,9 @@ function GenerateScreen() {
           </div>
           <div className="px-5 pb-3">
             <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-              {credits} image{credits === 1 ? "" : "s"} remaining
+              {isSubscribed
+                ? `${usedCount} of ${PAID_LIMIT} images used this month`
+                : `${usedCount} of ${FREE_LIMIT} free images used`}
             </span>
           </div>
         </header>
