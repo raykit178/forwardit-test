@@ -81,7 +81,7 @@ function GenerateScreen() {
       const { data: profile } = await supabase
         .from("profiles")
         .select("business_name, logo_url, brand_colour")
-        .eq("id", user.id)
+        .eq("user_id", user.id)
         .maybeSingle();
       if (!profile) {
         navigate({ to: "/brand-setup" });
