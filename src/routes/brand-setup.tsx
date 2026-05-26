@@ -135,7 +135,6 @@ function BrandSetupScreen() {
 
 
       const { error: insErr } = await supabase.from("profiles").upsert({
-        id: user.id,
         user_id: user.id,
         business_name: businessName,
         logo_url,
