@@ -202,14 +202,20 @@ function GenerateScreen() {
             <Lock className="size-7" />
           </div>
           <h1 className="mt-5 text-xl font-bold text-foreground">
-            You've used all {limit} free images this month
+            {isSubscribed
+              ? "You've used all your images for this month"
+              : `You've used all ${FREE_LIMIT} free images`}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Upgrade to continue generating images
+            {isSubscribed
+              ? "Resets on the 1st."
+              : "Upgrade to continue generating images"}
           </p>
-          <Button size="lg" className="mt-8 h-12 px-8 rounded-xl">
-            Upgrade
-          </Button>
+          {!isSubscribed && (
+            <Button size="lg" className="mt-8 h-12 px-8 rounded-xl">
+              Upgrade
+            </Button>
+          )}
         </div>
       </main>
     );
