@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, ImageIcon } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
 
 export const Route = createFileRoute("/brand-setup")({
   head: () => ({
@@ -101,15 +101,38 @@ function BrandSetupScreen() {
       const user = session.user;
       console.log("Session user ID: " + user.id);
 
+      // Force the supabase client to refresh its internal auth headers
+      // (storage client occasionally misses the freshly-hydrated token).
+      await supabase.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+      });
+
       const path = `${user.id}/logo.png`;
-      const { error: upErr } = await supabase.storage
-        .from("logos")
-        .upload(path, logoFile, { upsert: true, contentType: logoFile.type });
-      if (upErr) throw upErr;
+
+      // Upload via raw fetch so we can explicitly attach the bearer token
+      // and rule out any client-side header propagation issue.
+      const uploadUrl = `${SUPABASE_URL}/storage/v1/object/logos/${path}`;
+      const uploadRes = await fetch(uploadUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: SUPABASE_ANON_KEY,
+          "Content-Type": logoFile.type,
+          "x-upsert": "true",
+          "cache-control": "3600",
+        },
+        body: logoFile,
+      });
+      if (!uploadRes.ok) {
+        const txt = await uploadRes.text();
+        throw new Error(`Storage upload failed (${uploadRes.status}): ${txt}`);
+      }
 
       const { data: pub } = supabase.storage.from("logos").getPublicUrl(path);
       const logo_url = pub.publicUrl;
       console.log("Storage upload complete, logo_url: " + logo_url);
+
 
       const { error: insErr } = await supabase.from("profiles").upsert({
         id: user.id,
