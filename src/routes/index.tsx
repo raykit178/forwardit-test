@@ -1,6 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,12 +32,51 @@ function GoogleIcon() {
 
 function SignInScreen() {
   const navigate = useNavigate();
+  const [mode, setMode] = useState<"buttons" | "email">("buttons");
+  const [email, setEmail] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleContinue = () => {
-    // TODO: wire to Supabase Auth (Google + email)
-    const hasBrand =
-      typeof window !== "undefined" && localStorage.getItem("forwardit.brand");
-    navigate({ to: hasBrand ? "/generate" : "/brand-setup" });
+  // If session already exists, route based on profile presence.
+  useEffect(() => {
+    const route = async (userId: string) => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", userId)
+        .maybeSingle();
+      navigate({ to: data ? "/generate" : "/brand-setup" });
+    };
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user) route(data.session.user.id);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (s?.user) route(s.user.id);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleGoogle = async () => {
+    setError(null);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) setError(error.message);
+  };
+
+  const handleEmail = async () => {
+    if (!email) return;
+    setSending(true);
+    setError(null);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin },
+    });
+    setSending(false);
+    if (error) setError(error.message);
+    else setSent(true);
   };
 
   return (
@@ -50,24 +92,67 @@ function SignInScreen() {
         </header>
 
         <div className="mt-auto flex flex-col gap-3 pt-16">
-          <Button
-            onClick={handleContinue}
-            size="lg"
-            className="w-full h-12 text-base font-medium rounded-xl"
-          >
-            <GoogleIcon />
-            <span className="ml-1">Continue with Google</span>
-          </Button>
+          {mode === "buttons" && (
+            <>
+              <Button
+                onClick={handleGoogle}
+                size="lg"
+                className="w-full h-12 text-base font-medium rounded-xl"
+              >
+                <GoogleIcon />
+                <span className="ml-1">Continue with Google</span>
+              </Button>
 
-          <Button
-            onClick={handleContinue}
-            variant="outline"
-            size="lg"
-            className="w-full h-12 text-base font-medium rounded-xl border-input"
-          >
-            <Mail className="size-5" />
-            <span className="ml-1">Continue with email</span>
-          </Button>
+              <Button
+                onClick={() => setMode("email")}
+                variant="outline"
+                size="lg"
+                className="w-full h-12 text-base font-medium rounded-xl border-input"
+              >
+                <Mail className="size-5" />
+                <span className="ml-1">Continue with email</span>
+              </Button>
+            </>
+          )}
+
+          {mode === "email" && (
+            <div className="flex flex-col gap-3">
+              {sent ? (
+                <div className="rounded-xl border border-input bg-muted/30 p-4 text-sm text-foreground">
+                  Check your inbox for a sign-in link sent to{" "}
+                  <span className="font-medium">{email}</span>.
+                </div>
+              ) : (
+                <>
+                  <Input
+                    type="email"
+                    placeholder="you@business.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-12 rounded-xl text-base"
+                  />
+                  <Button
+                    onClick={handleEmail}
+                    disabled={sending || !email}
+                    size="lg"
+                    className="w-full h-12 text-base font-medium rounded-xl"
+                  >
+                    {sending ? "Sending..." : "Send magic link"}
+                  </Button>
+                  <button
+                    onClick={() => setMode("buttons")}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    ← Back
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          {error && (
+            <p className="text-xs text-destructive text-center">{error}</p>
+          )}
 
           <p className="mt-6 text-center text-xs text-muted-foreground leading-relaxed px-4">
             By continuing, you agree to our Terms of Service and Privacy Policy.
