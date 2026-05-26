@@ -230,7 +230,9 @@ function GenerateScreen() {
           </div>
           <div className="px-5 pb-3">
             <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-              {credits} image{credits === 1 ? "" : "s"} remaining
+              {isSubscribed
+                ? `${usedCount} of ${PAID_LIMIT} images used this month`
+                : `${usedCount} of ${FREE_LIMIT} free images used`}
             </span>
           </div>
         </header>
