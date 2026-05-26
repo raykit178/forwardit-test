@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, AlertTriangle } from "lucide-react";
+import { Check, AlertTriangle, Lock } from "lucide-react";
+import { supabase, SUPABASE_FUNCTIONS_URL } from "@/lib/supabase";
 
 export const Route = createFileRoute("/generate")({
   head: () => ({
@@ -10,19 +11,6 @@ export const Route = createFileRoute("/generate")({
   }),
   component: GenerateScreen,
 });
-
-const OCCASIONS = [
-  "Diwali",
-  "Holi",
-  "Eid",
-  "Christmas",
-  "New Year",
-  "Independence Day",
-  "Republic Day",
-  "Women's Day",
-  "Valentine's Day",
-  "Mother's Day",
-];
 
 const STYLES = [
   { name: "Vibrant", desc: "Bold colours, festive energy" },
@@ -33,41 +21,82 @@ const STYLES = [
 const LANGUAGES = ["English", "Hindi", "Marathi"] as const;
 
 const STEPS = [
-  { label: "Creating your greeting", duration: 2000 },
-  { label: "Generating image", duration: 6000 },
-  { label: "Adding your brand", duration: 2000 },
+  { label: "Creating your greeting" },
+  { label: "Generating image" },
+  { label: "Adding your brand" },
 ];
 
 type Brand = { businessName: string; logoDataUrl: string | null; brandColor: string };
 type Phase = "idle" | "loading" | "result" | "error";
 
-// Toggle to simulate a failure during generation for testing.
-const SIMULATE_FAILURE = false;
+const FREE_LIMIT = 3;
+const PAID_LIMIT = 30;
 
 function GenerateScreen() {
+  const navigate = useNavigate();
   const [brand, setBrand] = useState<Brand | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isSubscribed] = useState(false); // Placeholder for billing state.
+
   const [occasion, setOccasion] = useState<string | null>(null);
   const [style, setStyle] = useState<string | null>(null);
   const [language, setLanguage] = useState<string | null>(null);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [activeStep, setActiveStep] = useState(0);
-  const [credits, setCredits] = useState(3);
-  const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [usedThisMonth, setUsedThisMonth] = useState(0);
+  const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const limit = isSubscribed ? PAID_LIMIT : FREE_LIMIT;
+  const credits = Math.max(0, limit - usedThisMonth);
+  const overLimit = usedThisMonth >= limit;
+
+  const loadUsage = async (uid: string) => {
+    const start = new Date();
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+    const { count } = await supabase
+      .from("generations")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", uid)
+      .gte("created_at", start.toISOString());
+    setUsedThisMonth(count ?? 0);
+  };
 
   useEffect(() => {
-    const raw = localStorage.getItem("forwardit.brand");
-    if (raw) {
-      try {
-        setBrand(JSON.parse(raw));
-      } catch {
-        // ignore
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      const user = data.session?.user;
+      if (!user) {
+        navigate({ to: "/" });
+        return;
       }
-    }
+      setUserId(user.id);
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("business_name, logo_url, brand_colour")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!profile) {
+        navigate({ to: "/brand-setup" });
+        return;
+      }
+      setBrand({
+        businessName: profile.business_name,
+        logoDataUrl: profile.logo_url,
+        brandColor: profile.brand_colour,
+      });
+      await loadUsage(user.id);
+    })();
+
     return () => {
-      timeoutsRef.current.forEach(clearTimeout);
+      if (stepIntervalRef.current) clearInterval(stepIntervalRef.current);
     };
-  }, []);
+  }, [navigate]);
 
   const initials = (brand?.businessName || "U")
     .split(" ")
@@ -76,61 +105,113 @@ function GenerateScreen() {
     .join("")
     .toUpperCase();
 
-  const canGenerate = Boolean(occasion && style && language) && phase === "idle";
+  const canGenerate =
+    Boolean(occasion && style && language) && phase === "idle" && !overLimit;
 
-  const clearTimers = () => {
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
+  const startStepAnimation = () => {
+    setActiveStep(0);
+    if (stepIntervalRef.current) clearInterval(stepIntervalRef.current);
+    stepIntervalRef.current = setInterval(() => {
+      setActiveStep((s) => (s < STEPS.length - 1 ? s + 1 : s));
+    }, 2500);
   };
 
-  const runMockGeneration = () => {
-    clearTimers();
-    setActiveStep(0);
-    setPhase("loading");
-
-    let elapsed = 0;
-    STEPS.forEach((step, i) => {
-      elapsed += step.duration;
-      const isLast = i === STEPS.length - 1;
-      const t = setTimeout(() => {
-        if (SIMULATE_FAILURE && i === 1) {
-          setPhase("error");
-          return;
-        }
-        if (isLast) {
-          setCredits((c) => Math.max(0, c - 1));
-          setPhase("result");
-        } else {
-          setActiveStep(i + 1);
-        }
-      }, elapsed);
-      timeoutsRef.current.push(t);
-    });
+  const stopStepAnimation = () => {
+    if (stepIntervalRef.current) {
+      clearInterval(stepIntervalRef.current);
+      stepIntervalRef.current = null;
+    }
   };
 
   const handleGenerate = async () => {
-    // Placeholder for Supabase Edge Function call.
-    runMockGeneration();
+    setPhase("loading");
+    setErrorMsg(null);
+    startStepAnimation();
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error("Not signed in");
+
+      const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/generate-image`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ occasion, style, language }),
+      });
+      if (!res.ok) throw new Error(`Generation failed (${res.status})`);
+      const json = (await res.json()) as { imageUrl: string };
+      if (!json.imageUrl) throw new Error("No image returned");
+
+      // Save to db.
+      if (userId) {
+        await supabase.from("generations").insert({
+          user_id: userId,
+          occasion,
+          style,
+          language,
+          image_url: json.imageUrl,
+        });
+        await loadUsage(userId);
+      }
+
+      setImageUrl(json.imageUrl);
+      stopStepAnimation();
+      setActiveStep(STEPS.length);
+      setPhase("result");
+    } catch (e) {
+      stopStepAnimation();
+      setErrorMsg(e instanceof Error ? e.message : "Something went wrong");
+      setPhase("error");
+    }
   };
 
   const handleReset = () => {
-    clearTimers();
+    stopStepAnimation();
     setOccasion(null);
     setStyle(null);
     setLanguage(null);
     setActiveStep(0);
+    setImageUrl(null);
     setPhase("idle");
   };
 
   const handleShareWhatsApp = () => {
+    const text = imageUrl
+      ? `Check out my festival greeting! ${imageUrl}`
+      : "Check out my festival greeting!";
     window.open(
-      "https://wa.me/?text=Check%20out%20my%20festival%20greeting!",
+      `https://wa.me/?text=${encodeURIComponent(text)}`,
       "_blank",
       "noopener,noreferrer",
     );
   };
 
-  const showSelectors = phase === "idle";
+  const showSelectors = phase === "idle" && !overLimit;
+
+  // Paywall
+  if (overLimit) {
+    return (
+      <main className="min-h-[100dvh] bg-background flex justify-center">
+        <div className="w-full max-w-[430px] flex flex-col items-center justify-center px-6 text-center">
+          <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Lock className="size-7" />
+          </div>
+          <h1 className="mt-5 text-xl font-bold text-foreground">
+            You've used all {limit} free images this month
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Upgrade to continue generating images
+          </p>
+          <Button size="lg" className="mt-8 h-12 px-8 rounded-xl">
+            Upgrade
+          </Button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-[100dvh] bg-background flex justify-center">
@@ -147,15 +228,13 @@ function GenerateScreen() {
           </div>
           <div className="px-5 pb-3">
             <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-              {credits} free image{credits === 1 ? "" : "s"} remaining
+              {credits} image{credits === 1 ? "" : "s"} remaining
             </span>
           </div>
         </header>
 
-        {/* Idle: selectors */}
         {showSelectors && (
           <div className="animate-fade-in">
-            {/* Occasion */}
             <section className="pt-6 px-5">
               <h2 className="text-sm font-semibold text-foreground">
                 Enter an occasion
@@ -168,7 +247,6 @@ function GenerateScreen() {
               />
             </section>
 
-            {/* Style */}
             <section className="pt-8 px-5">
               <h2 className="text-sm font-semibold text-foreground">Choose a style</h2>
               <div className="mt-3 grid grid-cols-3 gap-2.5">
@@ -196,7 +274,6 @@ function GenerateScreen() {
               </div>
             </section>
 
-            {/* Language */}
             <section className="pt-8 px-5">
               <h2 className="text-sm font-semibold text-foreground">
                 Choose a language
@@ -223,7 +300,6 @@ function GenerateScreen() {
           </div>
         )}
 
-        {/* Loading */}
         {phase === "loading" && (
           <section className="px-5 pt-12 animate-fade-in">
             <ol className="flex flex-col gap-5 max-w-xs mx-auto">
@@ -251,9 +327,7 @@ function GenerateScreen() {
                     </span>
                     <span
                       className={`text-sm font-medium ${
-                        active
-                          ? "text-foreground"
-                          : complete
+                        active || complete
                           ? "text-foreground"
                           : "text-muted-foreground"
                       }`}
@@ -267,17 +341,16 @@ function GenerateScreen() {
           </section>
         )}
 
-        {/* Error */}
         {phase === "error" && (
           <section className="px-5 pt-16 flex flex-col items-center text-center animate-fade-in">
             <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
               <AlertTriangle className="size-7" />
             </div>
             <p className="mt-4 text-base font-medium text-foreground">
-              Something went wrong. Please try again.
+              {errorMsg || "Something went wrong. Please try again."}
             </p>
             <Button
-              onClick={runMockGeneration}
+              onClick={handleGenerate}
               size="lg"
               className="mt-6 h-12 px-8 rounded-xl"
             >
@@ -286,13 +359,20 @@ function GenerateScreen() {
           </section>
         )}
 
-        {/* Result */}
         {phase === "result" && (
           <section className="px-5 pt-6 animate-fade-in">
-            <div className="aspect-square w-full rounded-xl bg-muted flex items-center justify-center">
-              <span className="text-sm text-muted-foreground">
-                Your image will appear here
-              </span>
+            <div className="aspect-square w-full rounded-xl bg-muted flex items-center justify-center overflow-hidden">
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt="Generated greeting"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-sm text-muted-foreground">
+                  Your image will appear here
+                </span>
+              )}
             </div>
             <div className="mt-5 flex flex-col gap-2.5">
               <Button
@@ -317,7 +397,6 @@ function GenerateScreen() {
           </section>
         )}
 
-        {/* Sticky CTA (only in idle/loading) */}
         {(phase === "idle" || phase === "loading") && (
           <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] border-t border-border bg-background/95 backdrop-blur px-5 py-4">
             <Button
