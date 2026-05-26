@@ -99,6 +99,7 @@ function BrandSetupScreen() {
         return;
       }
       const user = session.user;
+      console.log("Session user ID: " + user.id);
 
       const path = `${user.id}/logo.png`;
       const { error: upErr } = await supabase.storage
@@ -108,6 +109,7 @@ function BrandSetupScreen() {
 
       const { data: pub } = supabase.storage.from("logos").getPublicUrl(path);
       const logo_url = pub.publicUrl;
+      console.log("Storage upload complete, logo_url: " + logo_url);
 
       const { error: insErr } = await supabase.from("profiles").upsert({
         id: user.id,
@@ -117,6 +119,7 @@ function BrandSetupScreen() {
         brand_colour: brandColor,
       });
       if (insErr) throw insErr;
+      console.log("Profile saved successfully");
 
       localStorage.setItem(
         "forwardit.brand",
@@ -124,6 +127,7 @@ function BrandSetupScreen() {
       );
       navigate({ to: "/generate" });
     } catch (e) {
+      console.error("Error at step X:", e);
       setError(e instanceof Error ? e.message : "Failed to save");
     } finally {
       setSaving(false);
