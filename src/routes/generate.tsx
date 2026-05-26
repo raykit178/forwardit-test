@@ -30,7 +30,7 @@ type Brand = { businessName: string; logoDataUrl: string | null; brandColor: str
 type Phase = "idle" | "loading" | "result" | "error";
 
 const FREE_LIMIT = 3;
-const PAID_LIMIT = 30;
+const PAID_LIMIT = 10;
 
 function GenerateScreen() {
   const navigate = useNavigate();
@@ -47,23 +47,25 @@ function GenerateScreen() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const [usedThisMonth, setUsedThisMonth] = useState(0);
+  const [usedCount, setUsedCount] = useState(0);
   const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const limit = isSubscribed ? PAID_LIMIT : FREE_LIMIT;
-  const credits = Math.max(0, limit - usedThisMonth);
-  const overLimit = usedThisMonth >= limit;
+  const overLimit = usedCount >= limit;
 
   const loadUsage = async (uid: string) => {
-    const start = new Date();
-    start.setDate(1);
-    start.setHours(0, 0, 0, 0);
-    const { count } = await supabase
+    let query = supabase
       .from("generations")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", uid)
-      .gte("created_at", start.toISOString());
-    setUsedThisMonth(count ?? 0);
+      .eq("user_id", uid);
+    if (isSubscribed) {
+      const start = new Date();
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+      query = query.gte("created_at", start.toISOString());
+    }
+    const { count } = await query;
+    setUsedCount(count ?? 0);
   };
 
   useEffect(() => {
