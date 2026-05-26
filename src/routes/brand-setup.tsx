@@ -93,8 +93,12 @@ function BrandSetupScreen() {
     setError(null);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
-      const user = sessionData.session?.user;
-      if (!user) throw new Error("Not signed in");
+      const session = sessionData.session;
+      if (!session?.user) {
+        navigate({ to: "/" });
+        return;
+      }
+      const user = session.user;
 
       const path = `${user.id}/logo.png`;
       const { error: upErr } = await supabase.storage
