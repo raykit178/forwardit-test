@@ -141,13 +141,14 @@ function BrandSetupScreen() {
         business_name: businessName,
         logo_url,
         brand_colour: brandColor,
+        contact_number: contactNumber,
       });
       if (insErr) throw insErr;
       console.log("Profile saved successfully");
 
       localStorage.setItem(
         "forwardit.brand",
-        JSON.stringify({ businessName, logoDataUrl: logo_url, brandColor }),
+        JSON.stringify({ businessName, logoDataUrl: logo_url, brandColor, contactNumber }),
       );
       navigate({ to: "/generate" });
     } catch (e) {
