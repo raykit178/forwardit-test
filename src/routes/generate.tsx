@@ -126,6 +126,63 @@ function GenerateScreen() {
     }
   };
 
+  const compositeImage = async (aiImageUrl: string, brand: Brand): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1024;
+      canvas.height = 1024;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return reject("No canvas context");
+
+      const brandBarHeight = 256;
+      const brandBarTop = 1024 - brandBarHeight;
+
+      const aiImg = new Image();
+      aiImg.crossOrigin = "anonymous";
+      aiImg.onload = () => {
+        ctx.drawImage(aiImg, 0, 0, 1024, 1024);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, brandBarTop, 1024, brandBarHeight);
+
+        ctx.fillStyle = brand.brandColor || "#006AFF";
+        ctx.fillRect(0, brandBarTop, 1024, 4);
+
+        const logoImg = new Image();
+        const drawText = (logoWidth: number) => {
+          const textX = 24 + logoWidth + (logoWidth > 0 ? 20 : 0);
+          const textY = brandBarTop + brandBarHeight / 2;
+          ctx.fillStyle = "#333333";
+          ctx.font = "500 26px DM Sans, sans-serif";
+          ctx.textBaseline = "middle";
+          ctx.fillText("📞 " + brand.contactNumber, textX, textY);
+          resolve(canvas.toDataURL("image/png"));
+        };
+
+        if (brand.logoDataUrl) {
+          logoImg.crossOrigin = "anonymous";
+          logoImg.onload = () => {
+            const maxLogoHeight = 160;
+            const maxLogoWidth = 300;
+            const scale = Math.min(maxLogoHeight / logoImg.height, maxLogoWidth / logoImg.width);
+            const logoW = logoImg.width * scale;
+            const logoH = logoImg.height * scale;
+            const logoX = 24;
+            const logoY = brandBarTop + 4 + (brandBarHeight - 4) / 2 - logoH / 2;
+            ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
+            drawText(logoW);
+          };
+          logoImg.onerror = () => drawText(0);
+          logoImg.src = brand.logoDataUrl;
+        } else {
+          drawText(0);
+        }
+      };
+      aiImg.onerror = reject;
+      aiImg.src = aiImageUrl;
+    });
+  };
+
   const handleGenerate = async () => {
     setPhase("loading");
     setErrorMsg(null);
