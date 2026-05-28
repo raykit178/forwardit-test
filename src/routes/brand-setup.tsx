@@ -250,6 +250,20 @@ function BrandSetupScreen() {
               </div>
             </div>
           </div>
+
+          {/* Contact number */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="contact-number" className="text-sm font-medium">
+              Contact Number
+            </Label>
+            <Input
+              id="contact-number"
+              placeholder="e.g. 98765 43210"
+              value={contactNumber}
+              onChange={(e) => setContactNumber(e.target.value)}
+              className="h-12 rounded-xl text-base"
+            />
+          </div>
         </div>
 
         <div className="mt-auto pt-10">
