@@ -57,6 +57,7 @@ function BrandSetupScreen() {
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [brandColor, setBrandColor] = useState<string>("");
+  const [contactNumber, setContactNumber] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,6 +71,7 @@ function BrandSetupScreen() {
     businessName.trim().length > 0 &&
     logoDataUrl !== null &&
     brandColor !== "" &&
+    contactNumber.trim().length > 0 &&
     !saving;
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
@@ -139,13 +141,14 @@ function BrandSetupScreen() {
         business_name: businessName,
         logo_url,
         brand_colour: brandColor,
+        contact_number: contactNumber,
       });
       if (insErr) throw insErr;
       console.log("Profile saved successfully");
 
       localStorage.setItem(
         "forwardit.brand",
-        JSON.stringify({ businessName, logoDataUrl: logo_url, brandColor }),
+        JSON.stringify({ businessName, logoDataUrl: logo_url, brandColor, contactNumber }),
       );
       navigate({ to: "/generate" });
     } catch (e) {
@@ -246,6 +249,20 @@ function BrandSetupScreen() {
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Contact number */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="contact-number" className="text-sm font-medium">
+              Contact Number
+            </Label>
+            <Input
+              id="contact-number"
+              placeholder="e.g. 98765 43210"
+              value={contactNumber}
+              onChange={(e) => setContactNumber(e.target.value)}
+              className="h-12 rounded-xl text-base"
+            />
           </div>
         </div>
 
