@@ -57,6 +57,7 @@ function BrandSetupScreen() {
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [brandColor, setBrandColor] = useState<string>("");
+  const [contactNumber, setContactNumber] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
