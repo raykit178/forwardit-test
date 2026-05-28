@@ -71,6 +71,7 @@ function BrandSetupScreen() {
     businessName.trim().length > 0 &&
     logoDataUrl !== null &&
     brandColor !== "" &&
+    contactNumber.trim().length > 0 &&
     !saving;
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
