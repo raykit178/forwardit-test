@@ -80,7 +80,7 @@ function GenerateScreen() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("business_name, logo_url, brand_colour")
+        .select("business_name, logo_url, brand_colour, contact_number")
         .eq("user_id", user.id)
         .maybeSingle();
       if (!profile) {
@@ -91,6 +91,7 @@ function GenerateScreen() {
         businessName: profile.business_name,
         logoDataUrl: profile.logo_url,
         brandColor: profile.brand_colour,
+        contactNumber: profile.contact_number ?? "",
       });
       await loadUsage(user.id);
     })();
