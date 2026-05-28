@@ -205,6 +205,8 @@ function GenerateScreen() {
       const json = (await res.json()) as { imageUrl: string };
       if (!json.imageUrl) throw new Error("No image returned");
 
+      const compositedUrl = await compositeImage(json.imageUrl, brand!);
+
       // Save to db.
       if (userId) {
         await supabase.from("generations").insert({
@@ -212,12 +214,12 @@ function GenerateScreen() {
           occasion,
           style,
           language,
-          image_url: json.imageUrl,
+          image_url: compositedUrl,
         });
         await loadUsage(userId);
       }
 
-      setImageUrl(json.imageUrl);
+      setImageUrl(compositedUrl);
       stopStepAnimation();
       setActiveStep(STEPS.length);
       setPhase("result");
