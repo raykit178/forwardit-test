@@ -512,6 +512,14 @@ function GenerateScreen() {
             </div>
             <div className="mt-5 flex flex-col gap-2.5">
               <Button
+                onClick={handleDownload}
+                size="lg"
+                className="w-full h-12 text-base font-medium rounded-xl text-white"
+                style={{ backgroundColor: '#F97316' }}
+              >
+                Save / Share
+              </Button>
+              <Button
                 onClick={handleShareWhatsApp}
                 size="lg"
                 className="w-full h-12 text-base font-medium rounded-xl"
