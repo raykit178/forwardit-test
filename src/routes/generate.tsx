@@ -126,9 +126,11 @@ function GenerateScreen() {
     }
   };
 
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
   const compositeImage = async (aiImageUrl: string, brand: Brand): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const canvas = document.createElement("canvas");
+      const canvas = canvasRef.current || document.createElement("canvas");
       canvas.width = 1024;
       canvas.height = 1024;
       const ctx = canvas.getContext("2d");
@@ -219,6 +221,32 @@ function GenerateScreen() {
       aiImg.onerror = reject;
       aiImg.src = aiImageUrl;
     });
+  };
+
+  const handleDownload = async () => {
+    const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const fileName = `forwardit-${(occasion || 'greeting').replace(/\s+/g, '-').toLowerCase()}.png`;
+      if (navigator.canShare && navigator.share) {
+        const file = new File([blob], fileName, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: fileName });
+            return;
+          } catch (e) {
+            // User cancelled or share failed — fall through to download
+          }
+        }
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
   };
 
   const handleGenerate = async () => {
