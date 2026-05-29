@@ -350,6 +350,7 @@ function GenerateScreen() {
   return (
     <main className="min-h-[100dvh] bg-background flex justify-center">
       <div className="w-full max-w-[430px] flex flex-col pb-32">
+        <canvas ref={canvasRef} className="hidden" />
         {/* Top bar */}
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
           <div className="flex items-center justify-between px-5 py-4">
