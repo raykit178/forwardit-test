@@ -137,39 +137,77 @@ function GenerateScreen() {
       const brandBarHeight = 256;
       const brandBarTop = 1024 - brandBarHeight;
 
+      // Helper: find tight bounding box of non-white, non-transparent pixels
+      const getContentBounds = (img: HTMLImageElement) => {
+        const offscreen = document.createElement("canvas");
+        offscreen.width = img.width;
+        offscreen.height = img.height;
+        const octx = offscreen.getContext("2d")!;
+        octx.drawImage(img, 0, 0);
+        const { data, width, height } = octx.getImageData(0, 0, img.width, img.height);
+        let minX = width, minY = height, maxX = 0, maxY = 0;
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const i = (y * width + x) * 4;
+            const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+            if (a < 20) continue; // transparent
+            if (r > 240 && g > 240 && b > 240) continue; // near-white
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+        if (maxX < minX) return { x: 0, y: 0, w: width, h: height }; // fallback
+        return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+      };
+
       const aiImg = new Image();
       aiImg.crossOrigin = "anonymous";
       aiImg.onload = () => {
         ctx.drawImage(aiImg, 0, 0, 1024, 1024);
 
+        // Brand bar background
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, brandBarTop, 1024, brandBarHeight);
 
+        // 4px top stroke in brand colour
         ctx.fillStyle = brand.brandColor || "#006AFF";
         ctx.fillRect(0, brandBarTop, 1024, 4);
 
-        const logoImg = new Image();
-        const drawText = (logoWidth: number) => {
-          const textX = 24 + logoWidth + (logoWidth > 0 ? 20 : 0);
-          const textY = brandBarTop + brandBarHeight / 2;
-          ctx.fillStyle = "#333333";
-          ctx.font = "500 26px DM Sans, sans-serif";
+        const drawText = (logoDrawnWidth: number) => {
+          // Phone number — right aligned
+          const fontSize = 32;
+          ctx.font = `600 ${fontSize}px DM Sans, sans-serif`;
+          ctx.fillStyle = "#222222";
           ctx.textBaseline = "middle";
-          ctx.fillText("📞 " + brand.contactNumber, textX, textY);
+          const phoneText = "✆  " + brand.contactNumber;
+          const rightMargin = 40;
+          const textX = 1024 - rightMargin;
+          const textY = brandBarTop + 4 + (brandBarHeight - 4) / 2;
+          ctx.textAlign = "right";
+          ctx.fillText(phoneText, textX, textY);
+          ctx.textAlign = "left"; // reset
           resolve(canvas.toDataURL("image/png"));
         };
 
         if (brand.logoDataUrl) {
+          const logoImg = new Image();
           logoImg.crossOrigin = "anonymous";
           logoImg.onload = () => {
-            const maxLogoHeight = 160;
-            const maxLogoWidth = 300;
-            const scale = Math.min(maxLogoHeight / logoImg.height, maxLogoWidth / logoImg.width);
-            const logoW = logoImg.width * scale;
-            const logoH = logoImg.height * scale;
-            const logoX = 24;
+            const bounds = getContentBounds(logoImg);
+            const maxLogoHeight = 190;
+            const maxLogoWidth = 320;
+            const scale = Math.min(maxLogoHeight / bounds.h, maxLogoWidth / bounds.w);
+            const logoW = bounds.w * scale;
+            const logoH = bounds.h * scale;
+            const logoX = 32;
             const logoY = brandBarTop + 4 + (brandBarHeight - 4) / 2 - logoH / 2;
-            ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
+            ctx.drawImage(
+              logoImg,
+              bounds.x, bounds.y, bounds.w, bounds.h,
+              logoX, logoY, logoW, logoH
+            );
             drawText(logoW);
           };
           logoImg.onerror = () => drawText(0);
