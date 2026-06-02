@@ -152,6 +152,7 @@ function BrandSetupScreen() {
         logo_url,
         brand_colour: brandColor,
         contact_number: contactNumber,
+        extra_info: extraInfo.trim() ? extraInfo.trim() : null,
       });
       if (insErr) throw insErr;
 
