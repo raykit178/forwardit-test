@@ -529,7 +529,7 @@ function GenerateScreen() {
                 Save / Share
               </Button>
               <Button
-                onClick={handleShareWhatsApp}
+                onClick={handleWhatsAppShare}
                 size="lg"
                 className="w-full h-12 text-base font-medium rounded-xl"
               >
