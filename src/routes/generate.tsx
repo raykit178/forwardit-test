@@ -56,6 +56,7 @@ function GenerateScreen() {
 
   const limit = isSubscribed ? PAID_LIMIT : FREE_LIMIT;
   const overLimit = usedCount >= limit;
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const loadUsage = async (uid: string) => {
     let query = supabase
