@@ -3,8 +3,11 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Upload, ImageIcon } from "lucide-react";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
+
+const EXTRA_INFO_MAX = 56;
 
 export const Route = createFileRoute("/brand-setup")({
   head: () => ({
