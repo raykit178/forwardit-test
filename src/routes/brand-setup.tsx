@@ -101,7 +101,6 @@ function BrandSetupScreen() {
         return;
       }
       const user = session.user;
-      console.log("Session user ID: " + user.id);
 
       // Force the supabase client to refresh its internal auth headers
       // (storage client occasionally misses the freshly-hydrated token).
@@ -133,8 +132,6 @@ function BrandSetupScreen() {
 
       const { data: pub } = supabase.storage.from("logos").getPublicUrl(path);
       const logo_url = pub.publicUrl;
-      console.log("Storage upload complete, logo_url: " + logo_url);
-
 
       const { error: insErr } = await supabase.from("profiles").upsert({
         user_id: user.id,
@@ -144,7 +141,6 @@ function BrandSetupScreen() {
         contact_number: contactNumber,
       });
       if (insErr) throw insErr;
-      console.log("Profile saved successfully");
 
       localStorage.setItem(
         "forwardit.brand",
