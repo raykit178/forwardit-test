@@ -306,15 +306,23 @@ function GenerateScreen() {
     setPhase("idle");
   };
 
-  const handleShareWhatsApp = () => {
-    const text = imageUrl
-      ? `Check out my festival greeting! ${imageUrl}`
-      : "Check out my festival greeting!";
-    window.open(
-      `https://wa.me/?text=${encodeURIComponent(text)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
+  const handleWhatsAppShare = async () => {
+    const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const fileName = `forwardit-${occasion.replace(/\s+/g, '-').toLowerCase()}.png`;
+      const file = new File([blob], fileName, { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file] });
+        } catch (e) {
+          // user cancelled
+        }
+      } else {
+        window.open('https://wa.me/', '_blank');
+      }
+    }, 'image/png');
   };
 
   const showSelectors = phase === "idle" && !overLimit;
