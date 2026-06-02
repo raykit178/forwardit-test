@@ -26,7 +26,7 @@ const STEPS = [
   { label: "Adding your brand" },
 ];
 
-type Brand = { businessName: string; logoDataUrl: string | null; brandColor: string; contactNumber: string };
+type Brand = { businessName: string; logoDataUrl: string | null; brandColor: string; contactNumber: string; extraInfo: string | null };
 type Phase = "idle" | "loading" | "result" | "error";
 
 const FREE_LIMIT = 3;
