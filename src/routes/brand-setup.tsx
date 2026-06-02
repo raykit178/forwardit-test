@@ -61,12 +61,22 @@ function BrandSetupScreen() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [brandColor, setBrandColor] = useState<string>("");
   const [contactNumber, setContactNumber] = useState("");
+  const [extraInfo, setExtraInfo] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) navigate({ to: "/" });
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) {
+        navigate({ to: "/" });
+        return;
+      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("extra_info")
+        .eq("user_id", data.session.user.id)
+        .maybeSingle();
+      if (profile?.extra_info) setExtraInfo(profile.extra_info);
     });
   }, [navigate]);
 
