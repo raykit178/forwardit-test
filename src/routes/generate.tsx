@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, AlertTriangle, Lock } from "lucide-react";
+import { Check, AlertTriangle, Lock, Download, MessageCircle } from "lucide-react";
 import { supabase, SUPABASE_FUNCTIONS_URL } from "@/lib/supabase";
 
 export const Route = createFileRoute("/generate")({
@@ -524,15 +524,18 @@ function GenerateScreen() {
                 onClick={handleDownload}
                 size="lg"
                 className="w-full h-12 text-base font-medium rounded-xl text-white"
-                style={{ backgroundColor: '#F97316' }}
+                style={{ backgroundColor: '#0073F8' }}
               >
-                Save / Share
+                <Download className="size-5" />
+                Download Image
               </Button>
               <Button
                 onClick={handleWhatsAppShare}
                 size="lg"
-                className="w-full h-12 text-base font-medium rounded-xl"
+                className="w-full h-12 text-base font-medium rounded-xl text-white"
+                style={{ backgroundColor: '#25D366' }}
               >
+                <MessageCircle className="size-5" />
                 Share on WhatsApp
               </Button>
               <Button
