@@ -410,38 +410,44 @@ function GenerateScreen() {
     }, 'image/png');
   };
 
-  const showSelectors = phase === "idle" && !overLimit;
-
-  // Paywall
-  if (overLimit) {
-    return (
-      <main className="min-h-[100dvh] bg-background flex justify-center">
-        <div className="w-full max-w-[430px] flex flex-col items-center justify-center px-6 text-center">
-          <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Lock className="size-7" />
-          </div>
-          <h1 className="mt-5 text-xl font-bold text-foreground">
-            {isSubscribed
-              ? "You've used all your images for this month"
-              : `You've used all ${FREE_LIMIT} free images`}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {isSubscribed
-              ? "Resets on the 1st."
-              : "Upgrade to continue generating images"}
-          </p>
-          {!isSubscribed && (
-            <Button size="lg" className="mt-8 h-12 px-8 rounded-xl">
-              Upgrade
-            </Button>
-          )}
-        </div>
-      </main>
-    );
-  }
+  const showSelectors = phase === "idle";
 
   return (
     <main className="min-h-[100dvh] bg-background flex justify-center">
+      <Toaster />
+      <Dialog open={showPaywall} onOpenChange={setShowPaywall}>
+        <DialogContent className="max-w-[360px] rounded-2xl bg-white sm:rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-foreground">
+              {isSubscribed
+                ? `You've used your ${PAID_LIMIT} images this month`
+                : `You've used your ${FREE_LIMIT} free images`}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Subscribe to generate {PAID_LIMIT} branded images every month — at a fraction of what a designer would charge.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-col gap-2 sm:flex-col sm:space-x-0">
+            <Button
+              onClick={() => toast("Coming soon")}
+              size="lg"
+              className="w-full h-12 text-base font-medium rounded-xl text-white"
+              style={{ backgroundColor: '#0073F8' }}
+            >
+              Subscribe for ₹499/month
+            </Button>
+            <Button
+              onClick={() => setShowPaywall(false)}
+              variant="outline"
+              size="lg"
+              className="w-full h-12 text-base font-medium rounded-xl"
+            >
+              Maybe later
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="w-full max-w-[430px] flex flex-col pb-32">
         <canvas ref={canvasRef} className="hidden" />
         {/* Top bar */}
