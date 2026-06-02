@@ -173,9 +173,9 @@ function GenerateScreen() {
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, brandBarTop, 1024, brandBarHeight);
 
-        // 4px top stroke in brand colour
+        // 8px top stroke in brand colour
         ctx.fillStyle = brand.brandColor || "#006AFF";
-        ctx.fillRect(0, brandBarTop, 1024, 4);
+        ctx.fillRect(0, brandBarTop, 1024, 8);
 
         const drawText = (logoDrawnWidth: number) => {
           // Phone number — right aligned
