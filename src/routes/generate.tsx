@@ -26,7 +26,7 @@ const STEPS = [
   { label: "Adding your brand" },
 ];
 
-type Brand = { businessName: string; logoDataUrl: string | null; brandColor: string; contactNumber: string };
+type Brand = { businessName: string; logoDataUrl: string | null; brandColor: string; contactNumber: string; extraInfo: string | null };
 type Phase = "idle" | "loading" | "result" | "error";
 
 const FREE_LIMIT = 3;
@@ -80,7 +80,7 @@ function GenerateScreen() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("business_name, logo_url, brand_colour, contact_number")
+        .select("business_name, logo_url, brand_colour, contact_number, extra_info")
         .eq("user_id", user.id)
         .maybeSingle();
       if (!profile) {
@@ -92,6 +92,7 @@ function GenerateScreen() {
         logoDataUrl: profile.logo_url,
         brandColor: profile.brand_colour,
         contactNumber: profile.contact_number ?? "",
+        extraInfo: profile.extra_info ?? null,
       });
       await loadUsage(user.id);
     })();
@@ -177,18 +178,76 @@ function GenerateScreen() {
         ctx.fillStyle = brand.brandColor || "#006AFF";
         ctx.fillRect(0, brandBarTop, 1024, 8);
 
-        const drawText = (logoDrawnWidth: number) => {
-          // Phone number — right aligned
-          const fontSize = 32;
-          ctx.font = `600 ${fontSize}px DM Sans, sans-serif`;
-          ctx.fillStyle = "#222222";
+        const drawText = (_logoDrawnWidth: number) => {
+          const rightColLeft = Math.round(1024 * 0.55); // 562
+          const rightColPadL = 24;
+          const rightColPadR = 24;
+          const rightColInnerLeft = rightColLeft + rightColPadL; // 586
+          const rightColInnerRight = 1024 - rightColPadR; // 1000
+          const rightColInnerWidth = rightColInnerRight - rightColInnerLeft; // 414
+          const extra = (brand.extraInfo ?? "").trim();
+
           ctx.textBaseline = "middle";
-          const phoneText = "✆  " + brand.contactNumber;
-          const rightMargin = 40;
-          const textX = 1024 - rightMargin;
-          const textY = brandBarTop + 4 + (brandBarHeight - 4) / 2;
-          ctx.textAlign = "right";
-          ctx.fillText(phoneText, textX, textY);
+
+          if (extra) {
+            // --- Extra info: wrap to max 2 lines ---
+            ctx.font = `400 22px 'Noto Sans', 'Noto Sans Devanagari', sans-serif`;
+            ctx.fillStyle = "#444444";
+            ctx.textAlign = "left";
+
+            const words = extra.split(/\s+/);
+            const lines: string[] = [];
+            let current = "";
+            for (const w of words) {
+              const test = current ? current + " " + w : w;
+              if (ctx.measureText(test).width <= rightColInnerWidth || !current) {
+                current = test;
+              } else {
+                lines.push(current);
+                current = w;
+                if (lines.length === 1) break;
+              }
+            }
+            if (current && lines.length < 2) lines.push(current);
+            // If we broke early due to 2-line cap, append remaining words to line 2
+            if (lines.length === 2) {
+              const consumed = lines.join(" ").split(/\s+/).length;
+              const rest = words.slice(consumed).join(" ");
+              if (rest) lines[1] = lines[1] + " " + rest;
+            }
+
+            const lineHeight = 28;
+            // Upper half of right column, vertically centred
+            const upperHalfCenter = brandBarTop + brandBarHeight * 0.25 + 4;
+            const blockHeight = lines.length * lineHeight;
+            const firstY = upperHalfCenter - blockHeight / 2 + lineHeight / 2;
+            lines.forEach((ln, i) => {
+              ctx.fillText(ln, rightColInnerLeft, firstY + i * lineHeight);
+            });
+
+            // --- Divider ---
+            const dividerY = brandBarTop + brandBarHeight / 2;
+            ctx.fillStyle = "#DDDDDD";
+            ctx.fillRect(rightColInnerLeft, dividerY, rightColInnerWidth, 1);
+
+            // --- Phone number, lower half ---
+            ctx.font = `600 32px DM Sans, sans-serif`;
+            ctx.fillStyle = "#222222";
+            ctx.textAlign = "left";
+            const phoneText = "✆  " + brand.contactNumber;
+            const phoneY = brandBarTop + brandBarHeight * 0.75 + 4;
+            ctx.fillText(phoneText, rightColInnerLeft, phoneY);
+          } else {
+            // Original: phone number right-aligned, vertically centred
+            ctx.font = `600 32px DM Sans, sans-serif`;
+            ctx.fillStyle = "#222222";
+            const phoneText = "✆  " + brand.contactNumber;
+            const rightMargin = 40;
+            const textX = 1024 - rightMargin;
+            const textY = brandBarTop + 4 + (brandBarHeight - 4) / 2;
+            ctx.textAlign = "right";
+            ctx.fillText(phoneText, textX, textY);
+          }
           ctx.textAlign = "left"; // reset
           resolve(canvas.toDataURL("image/png"));
         };

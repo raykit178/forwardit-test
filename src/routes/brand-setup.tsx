@@ -3,8 +3,11 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Upload, ImageIcon } from "lucide-react";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
+
+const EXTRA_INFO_MAX = 56;
 
 export const Route = createFileRoute("/brand-setup")({
   head: () => ({
@@ -58,12 +61,22 @@ function BrandSetupScreen() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [brandColor, setBrandColor] = useState<string>("");
   const [contactNumber, setContactNumber] = useState("");
+  const [extraInfo, setExtraInfo] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) navigate({ to: "/" });
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) {
+        navigate({ to: "/" });
+        return;
+      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("extra_info")
+        .eq("user_id", data.session.user.id)
+        .maybeSingle();
+      if (profile?.extra_info) setExtraInfo(profile.extra_info);
     });
   }, [navigate]);
 
@@ -139,6 +152,7 @@ function BrandSetupScreen() {
         logo_url,
         brand_colour: brandColor,
         contact_number: contactNumber,
+        extra_info: extraInfo.trim() ? extraInfo.trim() : null,
       });
       if (insErr) throw insErr;
 
@@ -260,7 +274,32 @@ function BrandSetupScreen() {
               className="h-12 rounded-xl text-base"
             />
           </div>
+
+          {/* Extra info */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="extra-info" className="text-sm font-medium">
+              Extra info (optional)
+            </Label>
+            <Textarea
+              id="extra-info"
+              placeholder="e.g. Address, Instagram handle, Tagline, etc."
+              value={extraInfo}
+              maxLength={EXTRA_INFO_MAX}
+              rows={1}
+              onChange={(e) => {
+                setExtraInfo(e.target.value);
+                const el = e.currentTarget;
+                el.style.height = "auto";
+                el.style.height = `${el.scrollHeight}px`;
+              }}
+              className="min-h-12 rounded-xl text-base resize-none overflow-hidden whitespace-pre-wrap break-words py-3"
+            />
+            <p className="text-xs text-muted-foreground">
+              Shown in your brand bar. Max {EXTRA_INFO_MAX} characters.
+            </p>
+          </div>
         </div>
+
 
         <div className="mt-auto pt-10">
           {error && (
