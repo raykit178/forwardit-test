@@ -16,6 +16,7 @@ const STYLES = [
   { name: "Vibrant", desc: "Bold colours, festive energy" },
   { name: "Minimal", desc: "Clean, modern, lots of space" },
   { name: "Elegant", desc: "Refined, premium, sophisticated" },
+  { name: "Word Art", desc: "Bold text, creative layouts" },
 ];
 
 const LANGUAGES = ["English", "Hindi", "Marathi"] as const;
