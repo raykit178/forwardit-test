@@ -274,7 +274,32 @@ function BrandSetupScreen() {
               className="h-12 rounded-xl text-base"
             />
           </div>
+
+          {/* Extra info */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="extra-info" className="text-sm font-medium">
+              Extra info (optional)
+            </Label>
+            <Textarea
+              id="extra-info"
+              placeholder="e.g. Address, Instagram handle, Tagline, etc."
+              value={extraInfo}
+              maxLength={EXTRA_INFO_MAX}
+              rows={1}
+              onChange={(e) => {
+                setExtraInfo(e.target.value);
+                const el = e.currentTarget;
+                el.style.height = "auto";
+                el.style.height = `${el.scrollHeight}px`;
+              }}
+              className="min-h-12 rounded-xl text-base resize-none overflow-hidden whitespace-pre-wrap break-words py-3"
+            />
+            <p className="text-xs text-muted-foreground">
+              Shown in your brand bar. Max {EXTRA_INFO_MAX} characters.
+            </p>
+          </div>
         </div>
+
 
         <div className="mt-auto pt-10">
           {error && (
