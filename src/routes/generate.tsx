@@ -314,6 +314,27 @@ function GenerateScreen() {
   };
 
   const handleGenerate = async () => {
+    // Re-check the limit before calling the edge function.
+    if (userId) {
+      let q = supabase
+        .from("generations")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId);
+      if (isSubscribed) {
+        const start = new Date();
+        start.setDate(1);
+        start.setHours(0, 0, 0, 0);
+        q = q.gte("created_at", start.toISOString());
+      }
+      const { count } = await q;
+      const used = count ?? 0;
+      setUsedCount(used);
+      if (used >= limit) {
+        setShowPaywall(true);
+        return;
+      }
+    }
+
     setPhase("loading");
     setErrorMsg(null);
     startStepAnimation();
