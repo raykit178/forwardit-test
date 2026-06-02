@@ -311,7 +311,7 @@ function GenerateScreen() {
     if (!canvas) return;
     canvas.toBlob(async (blob) => {
       if (!blob) return;
-      const fileName = `forwardit-${occasion.replace(/\s+/g, '-').toLowerCase()}.png`;
+      const fileName = `forwardit-${(occasion ?? '').replace(/\s+/g, '-').toLowerCase()}.png`;
       const file = new File([blob], fileName, { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
