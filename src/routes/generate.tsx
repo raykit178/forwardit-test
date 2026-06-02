@@ -115,7 +115,7 @@ function GenerateScreen() {
     .toUpperCase();
 
   const canGenerate =
-    Boolean(occasion && style && language) && phase === "idle" && !overLimit;
+    Boolean(occasion && style && language) && phase === "idle";
 
   const startStepAnimation = () => {
     setActiveStep(0);
