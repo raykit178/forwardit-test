@@ -173,8 +173,25 @@ function SignInScreen() {
           )}
 
           <p className="mt-6 text-center text-xs text-muted-foreground leading-relaxed px-4">
-            By continuing, you agree to our Terms of Service and Privacy Policy.
+            By continuing, you agree to our{" "}
+            <Link to="/terms" className="underline hover:text-foreground transition-colors">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="underline hover:text-foreground transition-colors">
+              Privacy Policy
+            </Link>
+            .
           </p>
+
+          <div className="mt-4 flex justify-center gap-4 text-xs text-muted-foreground">
+            <Link to="/privacy" className="hover:text-foreground transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </main>
