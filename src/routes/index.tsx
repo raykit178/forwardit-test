@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Forwardit — Your brand. Every festival. 30 seconds." },
+      { title: "Navo — Your brand. Every festival. 30 seconds." },
       {
         name: "description",
         content:
@@ -111,7 +111,7 @@ function SignInScreen() {
       <div className="w-full max-w-[430px] flex flex-col px-6 pt-20 pb-10">
         <header className="flex flex-col items-start">
           <h1 className="text-4xl font-bold tracking-tight text-primary">
-            Forwardit
+            Navo
           </h1>
           <p className="mt-3 text-base text-muted-foreground">
             Your brand. Every festival. 30 seconds.

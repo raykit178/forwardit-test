@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/generate")({
   head: () => ({
-    meta: [{ title: "Generate — Forwardit" }],
+    meta: [{ title: "Generate — Navo" }],
   }),
   component: GenerateScreen,
 });
@@ -454,7 +454,7 @@ function GenerateScreen() {
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
           <div className="flex items-center justify-between px-5 py-4">
             <span className="text-xl font-bold tracking-tight text-primary">
-              Forwardit
+              Navo
             </span>
             <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold">
               {initials}

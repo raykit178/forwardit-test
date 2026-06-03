@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/auth/callback")({
   head: () => ({
-    meta: [{ title: "Signing you in — Forwardit" }],
+    meta: [{ title: "Signing you in — Navo" }],
   }),
   component: AuthCallback,
 });
