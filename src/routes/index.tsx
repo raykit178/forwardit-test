@@ -175,6 +175,38 @@ function SignInScreen() {
                   >
                     ← Back
                   </button>
+
+                  <div className="flex items-center gap-3 my-2">
+                    <div className="h-px flex-1 bg-border" />
+                    <span className="text-xs text-muted-foreground">or sign in with password</span>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+
+                  <Input
+                    type="email"
+                    placeholder="you@business.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-12 rounded-xl text-base"
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-12 rounded-xl text-base"
+                  />
+                  <Button
+                    onClick={handlePasswordSignIn}
+                    disabled={passwordLoading || !email || !password}
+                    size="lg"
+                    className="w-full h-12 text-base font-medium rounded-xl"
+                  >
+                    {passwordLoading ? "Signing in..." : "Sign in with password"}
+                  </Button>
+                  {passwordError && (
+                    <p className="text-xs text-destructive text-center">{passwordError}</p>
+                  )}
                 </>
               )}
             </div>
