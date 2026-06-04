@@ -63,6 +63,7 @@ function GenerateScreen() {
   const [showManageModal, setShowManageModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "annual">("monthly");
   const [subscribing, setSubscribing] = useState(false);
+  const [paywallContext, setPaywallContext] = useState<"limit" | "upgrade">("limit");
 
   const handleSubscribe = async () => {
     setSubscribing(true);
