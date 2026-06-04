@@ -137,7 +137,6 @@ function SignInScreen() {
         onCtaClick={() => {
           if (mode === "buttons") {
             setMode("email");
-            document.getElementById("signin-block")?.scrollIntoView({ behavior: "smooth" });
           } else if (!sent) {
             handleEmail();
           }
