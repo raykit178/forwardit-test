@@ -123,7 +123,7 @@ function SignInScreen() {
       <ImageCarouselHero
         title="Navo"
         subtitle="Greetings with your brand. For every occasion "
-        description="AI-powered WhatsApp festival greeting images for your business"
+        description="AI-generated branded festival images — in English, Hindi and Marathi. Ready to forward on WhatsApp in 30 seconds."
         ctaText={
           mode === "email"
             ? sent
@@ -187,9 +187,9 @@ function SignInScreen() {
 
           <div className="mt-4 grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
             {[
-              { title: "No designer needed", description: "Pick a festival and get an image with your brand" },
-              { title: "Multiple Styles to Choose From", description: "ibrant, Minimal, Elegant, or Word Art — pick your mood" },
-              { title: "Made for WhatsApp", description: "Square format, ready to forward or post as a Story" },
+              { title: "No designer needed", description: "Upload your logo once. Pick a festival. Get a branded image — no skills required." },
+              { title: "Your brand, not a template", description: "Every image is generated from scratch using your logo, colours and contact number." },
+              { title: "4 styles, 3 languages", description: "Vibrant, Minimal, Elegant or Word Art. In English, Hindi or Marathi." },
             ].map((feature, index) => (
               <div
                 key={index}
@@ -200,6 +200,75 @@ function SignInScreen() {
               </div>
             ))}
           </div>
+
+          {/* Pricing */}
+          <section className="mt-12">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Simple, honest pricing</h2>
+              <p className="mt-2 text-sm text-muted-foreground">Try free — no card needed. 3 images on us, no watermark.</p>
+            </div>
+            <div className="mt-6 grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+              {/* Monthly */}
+              <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
+                <div className="text-sm font-medium text-muted-foreground">Monthly</div>
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-foreground">₹499</span>
+                  <span className="text-sm text-muted-foreground">/month</span>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm text-foreground flex-1">
+                  <li>• 10 branded images every month</li>
+                  <li>• Cancel anytime</li>
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("email");
+                    document.getElementById("signin-block")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="mt-6 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-medium text-white shadow transition-transform hover:-translate-y-0.5"
+                  style={{ backgroundColor: "#0073F8" }}
+                >
+                  Get Started Free
+                </button>
+              </div>
+              {/* Annual */}
+              <div
+                className="rounded-2xl border-2 bg-card p-6 flex flex-col shadow-lg"
+                style={{ borderColor: "#0073F8" }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium text-muted-foreground">Annual</div>
+                  <span
+                    className="rounded-full px-2.5 py-1 text-xs font-semibold text-white"
+                    style={{ backgroundColor: "#0073F8" }}
+                  >
+                    Save 33%
+                  </span>
+                </div>
+                <div className="mt-3 text-sm text-muted-foreground line-through">₹5,988</div>
+                <div className="mt-1 flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-foreground">₹3,999</span>
+                  <span className="text-sm text-muted-foreground">/year</span>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm text-foreground flex-1">
+                  <li>• 10 branded images every month</li>
+                  <li>• Best value</li>
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("email");
+                    document.getElementById("signin-block")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="mt-6 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-medium text-white shadow transition-transform hover:-translate-y-0.5"
+                  style={{ backgroundColor: "#0073F8" }}
+                >
+                  Get Started Free
+                </button>
+              </div>
+            </div>
+          </section>
+
 
           <p className="mt-8 text-center text-xs text-muted-foreground leading-relaxed px-4">
             By continuing, you agree to our{" "}
