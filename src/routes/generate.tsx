@@ -58,6 +58,71 @@ function GenerateScreen() {
   const limit = isSubscribed ? PAID_LIMIT : FREE_LIMIT;
   const overLimit = usedCount >= limit;
   const [showPaywall, setShowPaywall] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "annual">("monthly");
+  const [subscribing, setSubscribing] = useState(false);
+
+  const handleSubscribe = async () => {
+    setSubscribing(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch(
+        'https://xmjqfzwgontqjtylcmnd.supabase.co/functions/v1/create-subscription',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ plan: selectedPlan }),
+        }
+      );
+      const { subscriptionId, error } = await res.json();
+      if (error) throw new Error(error);
+
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      document.body.appendChild(script);
+      script.onload = () => {
+        const options = {
+          key: 'rzp_live_SxPmJquc2kDBSB',
+          subscription_id: subscriptionId,
+          name: 'Navo',
+          description: selectedPlan === 'monthly' ? 'Monthly Plan — ₹499/month' : 'Annual Plan — ₹3,999/year',
+          handler: async function (response: any) {
+            const { data: { session: s2 } } = await supabase.auth.getSession();
+            await supabase
+              .from('profiles')
+              .update({
+                subscription_status: 'active',
+                subscription_id: response.razorpay_subscription_id,
+                subscription_plan: selectedPlan,
+              })
+              .eq('user_id', s2?.user?.id);
+            setShowPaywall(false);
+            alert('Subscription activated! You can now generate up to 10 images per month.');
+          },
+          prefill: {
+            email: session?.user?.email,
+          },
+          theme: {
+            color: '#0073F8',
+          },
+        };
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+        setSubscribing(false);
+      };
+      script.onerror = () => {
+        setSubscribing(false);
+        alert('Failed to load payment gateway. Please try again.');
+      };
+    } catch (err) {
+      console.error('Subscription error:', err);
+      alert('Something went wrong. Please try again.');
+      setSubscribing(false);
+    }
+  };
 
   const loadUsage = async (uid: string) => {
     let query = supabase
