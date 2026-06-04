@@ -67,7 +67,7 @@ function GenerateScreen() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       const res = await fetch(
-        'https://xmjqfzwgontqjtylcmnd.supabase.co/functions/v1/create-subscription',
+        'https://xmjqfzwgontqjtylcmnd.supabase.co/functions/v1/dynamic-handler',
         {
           method: 'POST',
           headers: {
