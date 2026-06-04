@@ -4,6 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { ImageCarouselHero } from "@/components/ui/ai-image-generator-hero";
+
+const HERO_IMAGES = [
+  { id: "1", src: "https://images.unsplash.com/photo-1684369176170-463e84248b70?auto=format&fit=crop&q=60&w=600", alt: "AI art 1", rotation: -15 },
+  { id: "2", src: "https://plus.unsplash.com/premium_photo-1677269465314-d5d2247a0b0c?auto=format&fit=crop&q=60&w=600", alt: "AI art 2", rotation: -8 },
+  { id: "3", src: "https://images.unsplash.com/photo-1524673360092-e07b7ae58845?auto=format&fit=crop&q=60&w=600", alt: "AI art 3", rotation: 5 },
+  { id: "4", src: "https://plus.unsplash.com/premium_photo-1680610653084-6e4886519caf?auto=format&fit=crop&q=60&w=600", alt: "AI art 4", rotation: 12 },
+  { id: "5", src: "https://plus.unsplash.com/premium_photo-1680608979589-e9349ed066d5?auto=format&fit=crop&q=60&w=600", alt: "AI art 5", rotation: -12 },
+  { id: "6", src: "https://images.unsplash.com/photo-1562575214-da9fcf59b907?auto=format&fit=crop&q=60&w=600", alt: "AI art 6", rotation: 8 },
+  { id: "7", src: "https://plus.unsplash.com/premium_photo-1676637656210-390da73f4951?auto=format&fit=crop&q=60&w=600", alt: "AI art 7", rotation: -6 },
+  { id: "8", src: "https://images.unsplash.com/photo-1664448003794-2d446c53dcae?auto=format&fit=crop&q=60&w=600", alt: "AI art 8", rotation: 10 },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -107,8 +119,19 @@ function SignInScreen() {
   };
 
   return (
-    <main className="min-h-[100dvh] bg-background flex justify-center">
-      <div className="w-full max-w-[430px] flex flex-col px-6 pt-20 pb-10">
+    <main className="min-h-[100dvh] bg-background flex flex-col items-center">
+      <ImageCarouselHero
+        title="Your brand. Every festival. 30 seconds."
+        subtitle="Navo"
+        description="AI-powered WhatsApp festival greeting images for Indian small business owners."
+        ctaText="Get started"
+        onCtaClick={() => {
+          setMode("email");
+          document.getElementById("signin-block")?.scrollIntoView({ behavior: "smooth" });
+        }}
+        images={HERO_IMAGES}
+      />
+      <div id="signin-block" className="w-full max-w-[430px] flex flex-col px-6 pt-4 pb-10">
         <header className="flex flex-col items-start">
           <h1 className="text-4xl font-bold tracking-tight text-primary">
             Navo
