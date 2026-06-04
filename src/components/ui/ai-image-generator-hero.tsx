@@ -18,6 +18,9 @@ interface ImageCarouselHeroProps {
   description: string;
   ctaText: string;
   onCtaClick?: () => void;
+  ctaDisabled?: boolean;
+  aboveCta?: React.ReactNode;
+  belowCta?: React.ReactNode;
   images: ImageCard[];
   features?: Array<{
     title: string;
