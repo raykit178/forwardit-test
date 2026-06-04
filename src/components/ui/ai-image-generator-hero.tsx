@@ -173,22 +173,23 @@ export function ImageCarouselHero({
           {belowCta && <div className="mt-3">{belowCta}</div>}
         </div>
 
-        {/* Features Section */}
-        <div className="mt-14 grid w-full grid-cols-1 gap-6 sm:grid-cols-3">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="rounded-2xl border border-border bg-card/50 p-5 text-left"
-            >
-              <h3 className="text-base font-semibold text-foreground">
-                {feature.title}
-              </h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
+        {features.length > 0 && (
+          <div className="mt-14 grid w-full grid-cols-1 gap-6 sm:grid-cols-3">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="rounded-2xl border border-border bg-card/50 p-5 text-left"
+              >
+                <h3 className="text-base font-semibold text-foreground">
+                  {feature.title}
+                </h3>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
