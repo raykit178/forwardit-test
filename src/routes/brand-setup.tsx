@@ -64,6 +64,8 @@ function BrandSetupScreen() {
   const [extraInfo, setExtraInfo] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [savedLogoUrl, setSavedLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
