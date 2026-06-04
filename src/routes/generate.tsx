@@ -498,14 +498,36 @@ function GenerateScreen() {
               Subscribe to generate {PAID_LIMIT} branded images every month — at a fraction of what a designer would charge.
             </DialogDescription>
           </DialogHeader>
+          <div className="flex gap-2 p-1 bg-muted rounded-xl">
+            <button
+              type="button"
+              onClick={() => setSelectedPlan("monthly")}
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                selectedPlan === "monthly" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground"
+              }`}
+            >
+              Monthly — ₹499/mo
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedPlan("annual")}
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                selectedPlan === "annual" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground"
+              }`}
+            >
+              <span>Annual — ₹3,999/yr</span>
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#0073F8] text-white">Save 2 months</span>
+            </button>
+          </div>
           <DialogFooter className="flex flex-col gap-2 sm:flex-col sm:space-x-0">
             <Button
-              onClick={() => toast("Coming soon")}
+              onClick={handleSubscribe}
+              disabled={subscribing}
               size="lg"
               className="w-full h-12 text-base font-medium rounded-xl text-white"
               style={{ backgroundColor: '#0073F8' }}
             >
-              Subscribe for ₹499/month
+              {subscribing ? "Please wait..." : "Subscribe Now"}
             </Button>
             <Button
               onClick={() => setShowPaywall(false)}
