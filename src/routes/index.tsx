@@ -219,17 +219,6 @@ function SignInScreen() {
                   <li>• 10 branded images every month</li>
                   <li>• Cancel anytime</li>
                 </ul>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("email");
-                    document.getElementById("signin-block")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="mt-6 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-medium text-white shadow transition-transform hover:-translate-y-0.5"
-                  style={{ backgroundColor: "#0073F8" }}
-                >
-                  Get Started Free
-                </button>
               </div>
               {/* Annual */}
               <div
@@ -254,17 +243,6 @@ function SignInScreen() {
                   <li>• 10 branded images every month</li>
                   <li>• Best value</li>
                 </ul>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("email");
-                    document.getElementById("signin-block")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="mt-6 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-medium text-white shadow transition-transform hover:-translate-y-0.5"
-                  style={{ backgroundColor: "#0073F8" }}
-                >
-                  Get Started Free
-                </button>
               </div>
             </div>
           </section>
