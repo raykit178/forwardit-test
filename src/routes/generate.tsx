@@ -456,8 +456,17 @@ function GenerateScreen() {
             <span className="text-xl font-bold tracking-tight text-primary">
               Navo
             </span>
-            <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold">
-              {initials}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowPaywall(true)}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
+              >
+                Upgrade to Pro ✦
+              </button>
+              <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold">
+                {initials}
+              </div>
             </div>
           </div>
           <div className="px-5 pb-3">
