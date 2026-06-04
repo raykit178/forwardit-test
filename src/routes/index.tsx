@@ -27,9 +27,6 @@ function SignInScreen() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [password, setPassword] = useState("");
-  const [passwordLoading, setPasswordLoading] = useState(false);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   // Show a loader while we resolve the session, otherwise users returning
   // from a magic link briefly see the login screen before being redirected.
@@ -109,15 +106,6 @@ function SignInScreen() {
     else setSent(true);
   };
 
-  const handlePasswordSignIn = async () => {
-    if (!email || !password) return;
-    setPasswordLoading(true);
-    setPasswordError(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setPasswordLoading(false);
-    if (error) setPasswordError("Invalid email or password");
-  };
-
   return (
     <main className="min-h-[100dvh] bg-background flex justify-center">
       <div className="w-full max-w-[430px] flex flex-col px-6 pt-20 pb-10">
@@ -176,37 +164,6 @@ function SignInScreen() {
                     ← Back
                   </button>
 
-                  <div className="flex items-center gap-3 my-2">
-                    <div className="h-px flex-1 bg-border" />
-                    <span className="text-xs text-muted-foreground">or sign in with password</span>
-                    <div className="h-px flex-1 bg-border" />
-                  </div>
-
-                  <Input
-                    type="email"
-                    placeholder="you@business.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="h-12 rounded-xl text-base"
-                  />
-                  <Input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-12 rounded-xl text-base"
-                  />
-                  <Button
-                    onClick={handlePasswordSignIn}
-                    disabled={passwordLoading || !email || !password}
-                    size="lg"
-                    className="w-full h-12 text-base font-medium rounded-xl"
-                  >
-                    {passwordLoading ? "Signing in..." : "Sign in with password"}
-                  </Button>
-                  {passwordError && (
-                    <p className="text-xs text-destructive text-center">{passwordError}</p>
-                  )}
                 </>
               )}
             </div>

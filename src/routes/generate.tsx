@@ -63,6 +63,7 @@ function GenerateScreen() {
   const [showManageModal, setShowManageModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "annual">("monthly");
   const [subscribing, setSubscribing] = useState(false);
+  const [paywallContext, setPaywallContext] = useState<"limit" | "upgrade">("limit");
 
   const handleSubscribe = async () => {
     setSubscribing(true);
@@ -421,6 +422,7 @@ function GenerateScreen() {
       const used = count ?? 0;
       setUsedCount(used);
       if (used >= limit) {
+        setPaywallContext("limit");
         setShowPaywall(true);
         return;
       }
@@ -515,12 +517,14 @@ function GenerateScreen() {
         <DialogContent className="max-w-[360px] rounded-2xl bg-white sm:rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-foreground">
-              {isSubscribed
-                ? `You've used your ${PAID_LIMIT} images this month`
-                : `You've used your ${FREE_LIMIT} free images`}
+              {paywallContext === "limit"
+                ? `You've used your ${FREE_LIMIT} free images`
+                : "Unlock Navo Pro"}
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
-              Subscribe to generate {PAID_LIMIT} branded images every month — at a fraction of what a designer would charge.
+              {paywallContext === "limit"
+                ? "Subscribe to generate 10 branded images every month — at a fraction of what a designer would charge."
+                : "Generate up to 10 branded festival images every month. Always ready, always on-brand."}
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2 p-1 bg-muted rounded-xl">
@@ -613,7 +617,7 @@ function GenerateScreen() {
                 </span>
               ) : (
                 <button
-                  onClick={() => setShowPaywall(true)}
+                  onClick={() => { setPaywallContext("upgrade"); setShowPaywall(true); }}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium border"
                   style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
                 >
