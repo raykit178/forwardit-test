@@ -20,7 +20,7 @@ const HERO_IMAGES = [
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Navo — Your brand. Every festival. 30 seconds." },
+      { title: "Navo — Greetings with your brand. For every occasion" },
       {
         name: "description",
         content:
@@ -122,7 +122,7 @@ function SignInScreen() {
     <main className="min-h-[100dvh] bg-background flex flex-col items-center">
       <ImageCarouselHero
         title="Navo"
-        subtitle="Your brand. Every festival. 30 seconds."
+        subtitle="Greetings with your brand. For every occasion "
         description="AI-powered WhatsApp festival greeting images for your business"
         ctaText={
           mode === "email"
