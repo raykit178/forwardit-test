@@ -119,8 +119,19 @@ function SignInScreen() {
   };
 
   return (
-    <main className="min-h-[100dvh] bg-background flex justify-center">
-      <div className="w-full max-w-[430px] flex flex-col px-6 pt-20 pb-10">
+    <main className="min-h-[100dvh] bg-background flex flex-col items-center">
+      <ImageCarouselHero
+        title="Your brand. Every festival. 30 seconds."
+        subtitle="Navo"
+        description="AI-powered WhatsApp festival greeting images for Indian small business owners."
+        ctaText="Get started"
+        onCtaClick={() => {
+          setMode("email");
+          document.getElementById("signin-block")?.scrollIntoView({ behavior: "smooth" });
+        }}
+        images={HERO_IMAGES}
+      />
+      <div id="signin-block" className="w-full max-w-[430px] flex flex-col px-6 pt-4 pb-10">
         <header className="flex flex-col items-start">
           <h1 className="text-4xl font-bold tracking-tight text-primary">
             Navo
