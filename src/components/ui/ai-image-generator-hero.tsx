@@ -18,6 +18,9 @@ interface ImageCarouselHeroProps {
   description: string;
   ctaText: string;
   onCtaClick?: () => void;
+  ctaDisabled?: boolean;
+  aboveCta?: React.ReactNode;
+  belowCta?: React.ReactNode;
   images: ImageCard[];
   features?: Array<{
     title: string;
@@ -31,6 +34,9 @@ export function ImageCarouselHero({
   description,
   ctaText,
   onCtaClick,
+  ctaDisabled = false,
+  aboveCta,
+  belowCta,
   images,
   features = [
     {
@@ -151,15 +157,20 @@ export function ImageCarouselHero({
             {description}
           </p>
 
+          {aboveCta && <div className="mt-6 w-full max-w-sm">{aboveCta}</div>}
+
           {/* CTA Button */}
           <button
             type="button"
             onClick={onCtaClick}
-            className="group mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-6 text-base font-medium text-primary-foreground shadow-lg transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            disabled={ctaDisabled}
+            className="group mt-4 inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-6 text-base font-medium text-primary-foreground shadow-lg transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:hover:translate-y-0"
           >
             {ctaText}
             <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
           </button>
+
+          {belowCta && <div className="mt-3">{belowCta}</div>}
         </div>
 
         {/* Features Section */}

@@ -124,51 +124,58 @@ function SignInScreen() {
         title="Navo"
         subtitle="Your brand. Every festival. 30 seconds."
         description="AI-powered WhatsApp festival greeting images for your business"
-        ctaText="Continue with email"
+        ctaText={
+          mode === "email"
+            ? sent
+              ? "Magic link sent"
+              : sending
+                ? "Sending..."
+                : "Send magic link"
+            : "Continue with email"
+        }
+        ctaDisabled={mode === "email" && (sending || sent || !email)}
         onCtaClick={() => {
-          setMode("email");
-          document.getElementById("signin-block")?.scrollIntoView({ behavior: "smooth" });
+          if (mode === "buttons") {
+            setMode("email");
+            document.getElementById("signin-block")?.scrollIntoView({ behavior: "smooth" });
+          } else if (!sent) {
+            handleEmail();
+          }
         }}
+        aboveCta={
+          mode === "email" && !sent ? (
+            <Input
+              type="email"
+              placeholder="you@business.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-12 rounded-xl text-base"
+            />
+          ) : mode === "email" && sent ? (
+            <div className="rounded-xl border border-input bg-muted/30 p-4 text-sm text-foreground text-center">
+              Check your inbox for a sign-in link sent to{" "}
+              <span className="font-medium">{email}</span>.
+            </div>
+          ) : null
+        }
+        belowCta={
+          mode === "email" && !sent ? (
+            <button
+              onClick={() => {
+                setMode("buttons");
+                setError(null);
+              }}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              ← Back
+            </button>
+          ) : null
+        }
         images={HERO_IMAGES}
       />
       <div id="signin-block" className="w-full max-w-[430px] flex flex-col px-6 pt-4 pb-10">
-        <div className="mt-auto flex flex-col gap-3 pt-16">
+        <div className="mt-auto flex flex-col gap-3">
 
-          {mode === "email" && (
-            <div className="flex flex-col gap-3">
-              {sent ? (
-                <div className="rounded-xl border border-input bg-muted/30 p-4 text-sm text-foreground">
-                  Check your inbox for a sign-in link sent to{" "}
-                  <span className="font-medium">{email}</span>.
-                </div>
-              ) : (
-                <>
-                  <Input
-                    type="email"
-                    placeholder="you@business.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="h-12 rounded-xl text-base"
-                  />
-                  <Button
-                    onClick={handleEmail}
-                    disabled={sending || !email}
-                    size="lg"
-                    className="w-full h-12 text-base font-medium rounded-xl"
-                  >
-                    {sending ? "Sending..." : "Send magic link"}
-                  </Button>
-                  <button
-                    onClick={() => setMode("buttons")}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    ← Back
-                  </button>
-
-                </>
-              )}
-            </div>
-          )}
 
           {error && (
             <p className="text-xs text-destructive text-center">{error}</p>
