@@ -617,7 +617,7 @@ function GenerateScreen() {
                 </span>
               ) : (
                 <button
-                  onClick={() => setShowPaywall(true)}
+                  onClick={() => { setPaywallContext("upgrade"); setShowPaywall(true); }}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium border"
                   style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
                 >
