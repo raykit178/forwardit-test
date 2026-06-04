@@ -187,9 +187,10 @@ function GenerateScreen() {
         contactNumber: profile.contact_number ?? "",
         extraInfo: profile.extra_info ?? null,
       });
-      setSubscriptionStatus(profile.subscription_status === "active" ? "active" : "free");
+      const isActive = profile.subscription_status === "active";
+      setSubscriptionStatus(isActive ? "active" : "free");
       setSubscriptionPlan(profile.subscription_plan ?? null);
-      await loadUsage(user.id);
+      await loadUsage(user.id, isActive);
     })();
 
     return () => {
