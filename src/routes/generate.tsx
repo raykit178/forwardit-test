@@ -288,8 +288,8 @@ function GenerateScreen() {
 
           if (extra) {
             // --- Extra info: wrap to max 2 lines ---
-            ctx.font = `400 22px 'Noto Sans', 'Noto Sans Devanagari', sans-serif`;
-            ctx.fillStyle = "#444444";
+            ctx.font = `400 26px 'Noto Sans', 'Noto Sans Devanagari', sans-serif`;
+            ctx.fillStyle = "#333333";
             ctx.textAlign = "left";
 
             const words = extra.split(/\s+/);
@@ -313,30 +313,28 @@ function GenerateScreen() {
               if (rest) lines[1] = lines[1] + " " + rest;
             }
 
-            const lineHeight = 28;
-            // Upper half of right column, vertically centred
-            const upperHalfCenter = brandBarTop + brandBarHeight * 0.25 + 4;
-            const blockHeight = lines.length * lineHeight;
-            const firstY = upperHalfCenter - blockHeight / 2 + lineHeight / 2;
+            const dividerY = brandBarTop + brandBarHeight / 2;
+            const lineHeight = 34;
+            const lastLineY = dividerY - 14;
+            const firstY = lastLineY - (lines.length - 1) * lineHeight;
             lines.forEach((ln, i) => {
               ctx.fillText(ln, rightColInnerLeft, firstY + i * lineHeight);
             });
 
             // --- Divider ---
-            const dividerY = brandBarTop + brandBarHeight / 2;
             ctx.fillStyle = "#DDDDDD";
             ctx.fillRect(rightColInnerLeft, dividerY, rightColInnerWidth, 1);
 
             // --- Phone number, lower half ---
-            ctx.font = `600 32px DM Sans, sans-serif`;
+            ctx.font = `600 36px DM Sans, sans-serif`;
             ctx.fillStyle = "#222222";
             ctx.textAlign = "left";
             const phoneText = "✆  " + brand.contactNumber;
-            const phoneY = brandBarTop + brandBarHeight * 0.75 + 4;
+            const phoneY = dividerY + 14;
             ctx.fillText(phoneText, rightColInnerLeft, phoneY);
           } else {
             // Original: phone number right-aligned, vertically centred
-            ctx.font = `600 32px DM Sans, sans-serif`;
+            ctx.font = `600 36px DM Sans, sans-serif`;
             ctx.fillStyle = "#222222";
             const phoneText = "✆  " + brand.contactNumber;
             const rightMargin = 40;
