@@ -141,12 +141,12 @@ export function ImageCarouselHero({
 
         {/* Content Section */}
         <div className="flex max-w-3xl flex-col items-center text-center">
-          <span className="mb-3 rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
-            {subtitle}
-          </span>
-          <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-5xl">
+          <h1 className="text-balance text-5xl font-bold tracking-tight text-foreground sm:text-7xl">
             {title}
           </h1>
+          <p className="mt-3 text-balance text-xl font-medium text-foreground sm:text-3xl">
+            {subtitle}
+          </p>
           <p className="mt-4 text-pretty text-base text-muted-foreground sm:text-lg">
             {description}
           </p>
