@@ -27,9 +27,6 @@ function SignInScreen() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [password, setPassword] = useState("");
-  const [passwordLoading, setPasswordLoading] = useState(false);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   // Show a loader while we resolve the session, otherwise users returning
   // from a magic link briefly see the login screen before being redirected.
