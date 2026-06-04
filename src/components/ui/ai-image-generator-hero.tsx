@@ -91,7 +91,7 @@ export function ImageCarouselHero({
         <div className="absolute bottom-0 right-0 h-[300px] w-[300px] rounded-full bg-accent/20 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto flex max-w-6xl flex-col items-center px-6 pt-12 pb-16">
+      <div className="relative mx-auto flex max-w-6xl flex-col items-center px-6 pt-12 pb-[64px]">
         {/* Carousel Container */}
         <div
           className="relative mb-10 h-[320px] w-full max-w-[520px] select-none sm:h-[420px]"

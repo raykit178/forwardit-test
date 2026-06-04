@@ -187,9 +187,9 @@ function SignInScreen() {
 
           <div className="mt-4 grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
             {[
-              { title: "Realistic Results", description: "Photos that look professionally crafted" },
-              { title: "Fast Generation", description: "Turn ideas into images in seconds." },
-              { title: "Diverse Styles", description: "Choose from a wide range of artistic options." },
+              { title: "No designer needed", description: "Pick a festival and get an image with your brand" },
+              { title: "Multiple Styles to Choose From", description: "ibrant, Minimal, Elegant, or Word Art — pick your mood" },
+              { title: "Made for WhatsApp", description: "Square format, ready to forward or post as a Story" },
             ].map((feature, index) => (
               <div
                 key={index}
