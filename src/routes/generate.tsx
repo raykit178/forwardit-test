@@ -2,9 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, AlertTriangle, Download, MessageCircle } from "lucide-react";
+import { Check, AlertTriangle, Download, MessageCircle, Pencil, LogOut } from "lucide-react";
 import { supabase, SUPABASE_FUNCTIONS_URL } from "@/lib/supabase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
@@ -458,36 +459,47 @@ function GenerateScreen() {
         {/* Top bar */}
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
           <div className="flex items-center justify-between px-5 py-4">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleSignOut}
-                className="text-xs text-muted-foreground hover:underline"
-              >
-                Sign out
-              </button>
-              <span className="text-xl font-bold tracking-tight text-primary">
-                Navo
-              </span>
-            </div>
+            <span className="text-xl font-bold tracking-tight text-primary">
+              Navo
+            </span>
             <div className="flex items-center gap-2">
-              <div className="flex flex-col items-end gap-0.5">
-                <button
-                  onClick={() => setShowPaywall(true)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                  style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
+              <button
+                onClick={() => setShowPaywall(true)}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
+              >
+                Upgrade to Pro ✦
+              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    aria-label="Account menu"
+                    className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    {initials}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={8}
+                  className="w-52 rounded-xl bg-white shadow-lg border border-border p-1"
                 >
-                  Upgrade to Pro ✦
-                </button>
-                <button
-                  onClick={() => navigate({ to: "/brand-setup" })}
-                  className="text-xs text-muted-foreground hover:underline"
-                >
-                  Edit brand details
-                </button>
-              </div>
-              <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold">
-                {initials}
-              </div>
+                  <DropdownMenuItem
+                    onClick={() => navigate({ to: "/brand-setup" })}
+                    className="gap-2 px-3 py-2 text-sm text-foreground rounded-lg cursor-pointer"
+                  >
+                    <Pencil className="size-4" />
+                    Edit brand details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="gap-2 px-3 py-2 text-sm text-foreground rounded-lg cursor-pointer"
+                  >
+                    <LogOut className="size-4" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           <div className="px-5 pb-3">
