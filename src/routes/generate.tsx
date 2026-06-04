@@ -422,6 +422,7 @@ function GenerateScreen() {
       const used = count ?? 0;
       setUsedCount(used);
       if (used >= limit) {
+        setPaywallContext("limit");
         setShowPaywall(true);
         return;
       }
@@ -516,12 +517,14 @@ function GenerateScreen() {
         <DialogContent className="max-w-[360px] rounded-2xl bg-white sm:rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-foreground">
-              {isSubscribed
-                ? `You've used your ${PAID_LIMIT} images this month`
-                : `You've used your ${FREE_LIMIT} free images`}
+              {paywallContext === "limit"
+                ? `You've used your ${FREE_LIMIT} free images`
+                : "Unlock Navo Pro"}
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
-              Subscribe to generate {PAID_LIMIT} branded images every month — at a fraction of what a designer would charge.
+              {paywallContext === "limit"
+                ? "Subscribe to generate 10 branded images every month — at a fraction of what a designer would charge."
+                : "Generate up to 10 branded festival images every month. Always ready, always on-brand."}
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2 p-1 bg-muted rounded-xl">
