@@ -119,7 +119,7 @@ export function ImageCarouselHero({
               return (
                 <div
                   key={image.id}
-                  className="absolute h-32 w-24 sm:h-40 sm:w-32"
+                  className="absolute h-32 w-32 sm:h-40 sm:w-40"
                   style={{
                     transform: `translate3d(${x}px, ${y}px, ${z}px) rotate(${image.rotation}deg) scale(${scale})`,
                     zIndex: Math.round(z + 100),
