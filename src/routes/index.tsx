@@ -144,13 +144,18 @@ function SignInScreen() {
         }}
         aboveCta={
           mode === "email" && !sent ? (
-            <Input
-              type="email"
-              placeholder="you@business.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="h-12 rounded-xl text-base"
-            />
+            <div className="flex flex-col gap-2">
+              <Input
+                type="email"
+                placeholder="you@business.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-12 rounded-xl text-base"
+              />
+              {error && (
+                <p className="text-xs text-destructive text-left px-1">{error}</p>
+              )}
+            </div>
           ) : mode === "email" && sent ? (
             <div className="rounded-xl border border-input bg-muted/30 p-4 text-sm text-foreground text-center">
               Check your inbox for a sign-in link sent to{" "}
