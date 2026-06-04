@@ -674,72 +674,111 @@ function GenerateScreen() {
           </div>
         </header>
 
-        {showSelectors && (
-          <div className="animate-fade-in">
-            <section className="pt-6 px-5">
-              <h2 className="text-sm font-semibold text-foreground">
-                Enter an occasion
-              </h2>
-              <Input
-                value={occasion ?? ""}
-                onChange={(e) => setOccasion(e.target.value)}
-                placeholder="e.g. Diwali, Holi, Store Anniversary..."
-                className="mt-3 h-11 rounded-xl text-base"
+        {showSelectors && (() => {
+          const step1Done = Boolean(occasion && occasion.trim());
+          const step2Done = Boolean(style);
+          const step3Done = Boolean(language);
+          const doneCount = [step1Done, step2Done, step3Done].filter(Boolean).length;
+          const progressPct = doneCount === 0 ? 0 : doneCount === 1 ? 50 : 100;
+
+          const StepCircle = ({ n, done, active }: { n: number; done: boolean; active: boolean }) => (
+            <div
+              className={`relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors ${
+                done
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : active
+                  ? "border-primary bg-background text-primary"
+                  : "border-input bg-background text-muted-foreground"
+              }`}
+            >
+              {n}
+            </div>
+          );
+
+          return (
+            <div className="animate-fade-in relative px-5 pt-6">
+              {/* Connecting progress line */}
+              <div className="pointer-events-none absolute left-[33px] top-[42px] bottom-[42px] w-0.5 bg-border" aria-hidden />
+              <div
+                className="pointer-events-none absolute left-[33px] top-[42px] w-0.5 bg-primary transition-all duration-500"
+                style={{ height: `calc((100% - 84px) * ${progressPct / 100})` }}
+                aria-hidden
               />
-            </section>
 
-            <section className="pt-8 px-5">
-              <h2 className="text-sm font-semibold text-foreground">Choose a style</h2>
-              <div className="mt-3 grid grid-cols-2 gap-2.5">
-                {STYLES.map((s) => {
-                  const selected = style === s.name;
-                  return (
-                    <button
-                      key={s.name}
-                      onClick={() => setStyle(s.name)}
-                      className={`flex flex-col items-start rounded-xl border-2 bg-background p-2.5 text-left transition-colors ${
-                        selected
-                          ? "border-primary"
-                          : "border-input hover:border-muted-foreground/30"
-                      }`}
-                    >
-                      <span className="text-sm font-semibold text-foreground">
-                        {s.name}
-                      </span>
-                      <span className="mt-1 text-[11px] leading-snug text-muted-foreground">
-                        {s.desc}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
+              <section className="flex gap-3">
+                <StepCircle n={1} done={step1Done} active={!step1Done} />
+                <div className="flex-1">
+                  <h2 className="pt-1 text-sm font-semibold text-foreground">
+                    Enter an occasion
+                  </h2>
+                  <Input
+                    value={occasion ?? ""}
+                    onChange={(e) => setOccasion(e.target.value)}
+                    placeholder="e.g. Diwali, Holi, Store Anniversary..."
+                    className="mt-3 h-11 rounded-xl text-base"
+                  />
+                </div>
+              </section>
 
-            <section className="pt-8 px-5">
-              <h2 className="text-sm font-semibold text-foreground">
-                Choose a language
-              </h2>
-              <div className="mt-3 flex gap-2">
-                {LANGUAGES.map((l) => {
-                  const selected = language === l;
-                  return (
-                    <button
-                      key={l}
-                      onClick={() => setLanguage(l)}
-                      className={`flex-1 rounded-full border px-4 py-2.5 text-sm font-medium transition-colors ${
-                        selected
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-input bg-background text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {l}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          </div>
-        )}
+              <section className="mt-8 flex gap-3">
+                <StepCircle n={2} done={step2Done} active={step1Done && !step2Done} />
+                <div className="flex-1">
+                  <h2 className="pt-1 text-sm font-semibold text-foreground">Choose a style</h2>
+                  <div className="mt-3 grid grid-cols-2 gap-2.5">
+                    {STYLES.map((s) => {
+                      const selected = style === s.name;
+                      return (
+                        <button
+                          key={s.name}
+                          onClick={() => setStyle(s.name)}
+                          className={`flex flex-col items-start rounded-xl border-2 bg-background p-2.5 text-left transition-colors ${
+                            selected
+                              ? "border-primary"
+                              : "border-input hover:border-muted-foreground/30"
+                          }`}
+                        >
+                          <span className="text-sm font-semibold text-foreground">
+                            {s.name}
+                          </span>
+                          <span className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                            {s.desc}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
+
+              <section className="mt-8 flex gap-3">
+                <StepCircle n={3} done={step3Done} active={step1Done && step2Done && !step3Done} />
+                <div className="flex-1">
+                  <h2 className="pt-1 text-sm font-semibold text-foreground">
+                    Choose a language
+                  </h2>
+                  <div className="mt-3 flex gap-2">
+                    {LANGUAGES.map((l) => {
+                      const selected = language === l;
+                      return (
+                        <button
+                          key={l}
+                          onClick={() => setLanguage(l)}
+                          className={`flex-1 rounded-full border px-4 py-2.5 text-sm font-medium transition-colors ${
+                            selected
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-input bg-background text-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {l}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
+            </div>
+          );
+        })()}
 
         {phase === "loading" && (
           <section className="px-5 pt-12 animate-fade-in">
