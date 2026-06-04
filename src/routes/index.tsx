@@ -172,14 +172,32 @@ function SignInScreen() {
           ) : null
         }
         images={HERO_IMAGES}
+        features={[]}
       />
-      <div id="signin-block" className="w-full max-w-[430px] flex flex-col px-6 pt-4 pb-10">
+      <div id="signin-block" className="w-full max-w-[600px] flex flex-col px-6 pt-4 pb-10">
         <div className="mt-auto flex flex-col gap-3">
 
 
           {error && (
             <p className="text-xs text-destructive text-center">{error}</p>
           )}
+
+          <div className="mt-10 grid w-full grid-cols-1 gap-6 sm:grid-cols-3">
+            {[
+              { title: "Realistic Results", description: "Photos that look professionally crafted" },
+              { title: "Fast Generation", description: "Turn ideas into images in seconds." },
+              { title: "Diverse Styles", description: "Choose from a wide range of artistic options." },
+            ].map((feature, index) => (
+              <div
+                key={index}
+                className="rounded-2xl border border-border bg-card/50 p-5 text-left"
+              >
+                <h3 className="text-base font-semibold text-foreground">{feature.title}</h3>
+                <p className="mt-1.5 text-sm text-muted-foreground">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+
 
           <p className="mt-6 text-center text-xs text-muted-foreground leading-relaxed px-4">
             By continuing, you agree to our{" "}
