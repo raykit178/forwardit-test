@@ -575,13 +575,22 @@ function GenerateScreen() {
               Navo
             </span>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowPaywall(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
-              >
-                Upgrade to Pro ✦
-              </button>
+              {isSubscribed ? (
+                <span
+                  className="px-3 py-1.5 text-xs font-medium"
+                  style={{ color: '#0073F8' }}
+                >
+                  Pro ✦
+                </span>
+              ) : (
+                <button
+                  onClick={() => setShowPaywall(true)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                  style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
+                >
+                  Upgrade to Pro ✦
+                </button>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
@@ -602,6 +611,19 @@ function GenerateScreen() {
                   >
                     <Pencil className="size-4" />
                     Edit brand details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (isSubscribed) {
+                        setShowManageModal(true);
+                      } else {
+                        setShowPaywall(true);
+                      }
+                    }}
+                    className="gap-2 px-3 py-2 text-sm text-foreground rounded-lg cursor-pointer"
+                  >
+                    <CreditCard className="size-4" />
+                    Manage subscription
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleSignOut}
