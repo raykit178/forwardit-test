@@ -64,6 +64,8 @@ function BrandSetupScreen() {
   const [extraInfo, setExtraInfo] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [savedLogoUrl, setSavedLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
@@ -73,16 +75,27 @@ function BrandSetupScreen() {
       }
       const { data: profile } = await supabase
         .from("profiles")
-        .select("extra_info")
+        .select("business_name, logo_url, brand_colour, contact_number, extra_info")
         .eq("user_id", data.session.user.id)
         .maybeSingle();
-      if (profile?.extra_info) setExtraInfo(profile.extra_info);
+      if (profile) {
+        setIsEditing(true);
+        if (profile.business_name) setBusinessName(profile.business_name);
+        if (profile.brand_colour) setBrandColor(profile.brand_colour);
+        if (profile.contact_number) setContactNumber(profile.contact_number);
+        if (profile.extra_info) setExtraInfo(profile.extra_info);
+        if (profile.logo_url) {
+          setLogoDataUrl(profile.logo_url);
+          setSavedLogoUrl(profile.logo_url);
+        }
+      }
     });
   }, [navigate]);
 
+  const hasLogo = logoFile !== null || (isEditing && savedLogoUrl !== null);
   const canSubmit =
     businessName.trim().length > 0 &&
-    logoDataUrl !== null &&
+    hasLogo &&
     brandColor !== "" &&
     contactNumber.trim().length > 0 &&
     !saving;
@@ -103,7 +116,6 @@ function BrandSetupScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!logoFile) return;
     setSaving(true);
     setError(null);
     try {
@@ -115,36 +127,46 @@ function BrandSetupScreen() {
       }
       const user = session.user;
 
-      // Force the supabase client to refresh its internal auth headers
-      // (storage client occasionally misses the freshly-hydrated token).
-      await supabase.auth.setSession({
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
-      });
+      let logo_url: string | null = null;
 
-      const path = `${user.id}/logo.png`;
+      if (logoFile) {
+        // Force the supabase client to refresh its internal auth headers
+        // (storage client occasionally misses the freshly-hydrated token).
+        await supabase.auth.setSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        });
 
-      // Upload via raw fetch so we can explicitly attach the bearer token
-      // and rule out any client-side header propagation issue.
-      const uploadUrl = `${SUPABASE_URL}/storage/v1/object/logos/${path}`;
-      const uploadRes = await fetch(uploadUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          apikey: SUPABASE_ANON_KEY,
-          "Content-Type": logoFile.type,
-          "x-upsert": "true",
-          "cache-control": "3600",
-        },
-        body: logoFile,
-      });
-      if (!uploadRes.ok) {
-        const txt = await uploadRes.text();
-        throw new Error(`Storage upload failed (${uploadRes.status}): ${txt}`);
+        const path = `${user.id}/logo.png`;
+
+        // Upload via raw fetch so we can explicitly attach the bearer token
+        // and rule out any client-side header propagation issue.
+        const uploadUrl = `${SUPABASE_URL}/storage/v1/object/logos/${path}`;
+        const uploadRes = await fetch(uploadUrl, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: SUPABASE_ANON_KEY,
+            "Content-Type": logoFile.type,
+            "x-upsert": "true",
+            "cache-control": "3600",
+          },
+          body: logoFile,
+        });
+        if (!uploadRes.ok) {
+          const txt = await uploadRes.text();
+          throw new Error(`Storage upload failed (${uploadRes.status}): ${txt}`);
+        }
+
+        const { data: pub } = supabase.storage.from("logos").getPublicUrl(path);
+        logo_url = pub.publicUrl;
+      } else if (isEditing && savedLogoUrl) {
+        logo_url = savedLogoUrl;
       }
 
-      const { data: pub } = supabase.storage.from("logos").getPublicUrl(path);
-      const logo_url = pub.publicUrl;
+      if (!logo_url) {
+        throw new Error("No logo available");
+      }
 
       const { error: insErr } = await supabase.from("profiles").upsert({
         user_id: user.id,
@@ -311,7 +333,7 @@ function BrandSetupScreen() {
             size="lg"
             className="w-full h-12 text-base font-medium rounded-xl"
           >
-            {saving ? "Saving..." : "Save & Continue"}
+            {saving ? "Saving..." : isEditing ? "Save changes" : "Save & Continue"}
           </Button>
         </div>
       </div>
