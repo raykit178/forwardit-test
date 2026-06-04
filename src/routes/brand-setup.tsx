@@ -316,8 +316,20 @@ function BrandSetupScreen() {
               }}
               className="min-h-12 rounded-xl text-base resize-none overflow-hidden whitespace-pre-wrap break-words py-3"
             />
-            <p className="text-xs text-muted-foreground">
-              Shown in your brand bar. Max {EXTRA_INFO_MAX} characters.
+            <p
+              className="text-xs"
+              style={{
+                color:
+                  extraInfo.length <= 40
+                    ? "#888888"
+                    : extraInfo.length <= 50
+                      ? "#F59E0B"
+                      : "#EF4444",
+              }}
+            >
+              {extraInfo.length === EXTRA_INFO_MAX
+                ? `${extraInfo.length}/${EXTRA_INFO_MAX} characters — limit reached`
+                : `${extraInfo.length}/${EXTRA_INFO_MAX} characters`}
             </p>
           </div>
         </div>
