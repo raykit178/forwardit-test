@@ -124,7 +124,7 @@ function SignInScreen() {
         title="Navo"
         subtitle="Your brand. Every festival. 30 seconds."
         description="AI-powered WhatsApp festival greeting images for your business"
-        ctaText="Get started"
+        ctaText="Continue with email"
         onCtaClick={() => {
           setMode("email");
           document.getElementById("signin-block")?.scrollIntoView({ behavior: "smooth" });
@@ -133,19 +133,6 @@ function SignInScreen() {
       />
       <div id="signin-block" className="w-full max-w-[430px] flex flex-col px-6 pt-4 pb-10">
         <div className="mt-auto flex flex-col gap-3 pt-16">
-          {mode === "buttons" && (
-            <>
-              <Button
-                onClick={() => setMode("email")}
-                variant="outline"
-                size="lg"
-                className="w-full h-12 text-base font-medium rounded-xl border-input"
-              >
-                <Mail className="size-5" />
-                <span className="ml-1">Continue with email</span>
-              </Button>
-            </>
-          )}
 
           {mode === "email" && (
             <div className="flex flex-col gap-3">
