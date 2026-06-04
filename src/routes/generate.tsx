@@ -313,25 +313,27 @@ function GenerateScreen() {
               if (rest) lines[1] = lines[1] + " " + rest;
             }
 
-            const dividerY = brandBarTop + brandBarHeight / 2;
+            const dividerY = brandBarTop + 128;
             const lineHeight = 34;
-            const lastLineY = dividerY - 14;
-            const firstY = lastLineY - (lines.length - 1) * lineHeight;
+            const prevBaseline = ctx.textBaseline;
+            ctx.textBaseline = "top";
+            const firstY = brandBarTop + 40;
             lines.forEach((ln, i) => {
               ctx.fillText(ln, rightColInnerLeft, firstY + i * lineHeight);
             });
 
             // --- Divider ---
-            ctx.fillStyle = "#DDDDDD";
-            ctx.fillRect(rightColInnerLeft, dividerY, rightColInnerWidth, 1);
+            ctx.fillStyle = "#BBBBBB";
+            ctx.fillRect(rightColInnerLeft, dividerY - 0.75, rightColInnerWidth, 1.5);
 
             // --- Phone number, lower half ---
             ctx.font = `600 36px DM Sans, sans-serif`;
             ctx.fillStyle = "#222222";
             ctx.textAlign = "left";
             const phoneText = "✆  " + brand.contactNumber;
-            const phoneY = dividerY + 14;
+            const phoneY = brandBarTop + 160;
             ctx.fillText(phoneText, rightColInnerLeft, phoneY);
+            ctx.textBaseline = prevBaseline;
           } else {
             // Original: phone number right-aligned, vertically centred
             ctx.font = `600 36px DM Sans, sans-serif`;
