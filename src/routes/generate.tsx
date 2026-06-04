@@ -102,8 +102,26 @@ function GenerateScreen() {
                 subscription_plan: selectedPlan,
               })
               .eq('user_id', s2?.user?.id);
+            setSubscriptionStatus('active');
+            setSubscriptionPlan(selectedPlan);
             setShowPaywall(false);
             alert('Subscription activated! You can now generate up to 10 images per month.');
+          },
+          "modal": {
+            ondismiss: async function () {
+              const { data: { session: s3 } } = await supabase.auth.getSession();
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('subscription_status, subscription_plan')
+                .eq('user_id', s3?.user?.id)
+                .single();
+
+              if (profile?.subscription_status === 'active') {
+                setShowPaywall(false);
+                setSubscriptionStatus('active');
+                setSubscriptionPlan(profile.subscription_plan);
+              }
+            },
           },
           prefill: {
             email: session?.user?.email,
