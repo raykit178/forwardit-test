@@ -144,13 +144,18 @@ function SignInScreen() {
         }}
         aboveCta={
           mode === "email" && !sent ? (
-            <Input
-              type="email"
-              placeholder="you@business.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="h-12 rounded-xl text-base"
-            />
+            <div className="flex flex-col gap-2">
+              <Input
+                type="email"
+                placeholder="you@business.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-12 rounded-xl text-base"
+              />
+              {error && (
+                <p className="text-xs text-destructive text-left px-1">{error}</p>
+              )}
+            </div>
           ) : mode === "email" && sent ? (
             <div className="rounded-xl border border-input bg-muted/30 p-4 text-sm text-foreground text-center">
               Check your inbox for a sign-in link sent to{" "}
@@ -174,15 +179,13 @@ function SignInScreen() {
         images={HERO_IMAGES}
         features={[]}
       />
-      <div id="signin-block" className="w-full max-w-[600px] flex flex-col px-6 pt-4 pb-10">
-        <div className="mt-auto flex flex-col gap-3">
-
-
-          {error && (
+      <div id="signin-block" className="w-full max-w-[600px] flex flex-col px-6 pt-2 pb-10">
+        <div className="flex flex-col">
+          {error && mode !== "email" && (
             <p className="text-xs text-destructive text-center">{error}</p>
           )}
 
-          <div className="mt-10 grid w-full grid-cols-1 gap-6 sm:grid-cols-3">
+          <div className="mt-4 grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
             {[
               { title: "Realistic Results", description: "Photos that look professionally crafted" },
               { title: "Fast Generation", description: "Turn ideas into images in seconds." },
@@ -198,8 +201,7 @@ function SignInScreen() {
             ))}
           </div>
 
-
-          <p className="mt-6 text-center text-xs text-muted-foreground leading-relaxed px-4">
+          <p className="mt-8 text-center text-xs text-muted-foreground leading-relaxed px-4">
             By continuing, you agree to our{" "}
             <Link to="/terms" className="underline hover:text-foreground transition-colors">
               Terms of Service
@@ -210,17 +212,9 @@ function SignInScreen() {
             </Link>
             .
           </p>
-
-          <div className="mt-4 flex justify-center gap-4 text-xs text-muted-foreground">
-            <Link to="/privacy" className="hover:text-foreground transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="hover:text-foreground transition-colors">
-              Terms of Service
-            </Link>
-          </div>
         </div>
       </div>
     </main>
   );
 }
+
