@@ -121,9 +121,9 @@ function SignInScreen() {
   return (
     <main className="min-h-[100dvh] bg-background flex flex-col items-center">
       <ImageCarouselHero
-        title="Your brand. Every festival. 30 seconds."
-        subtitle="Navo"
-        description="AI-powered WhatsApp festival greeting images for Indian small business owners."
+        title="Navo"
+        subtitle="Your brand. Every festival. 30 seconds."
+        description="AI-powered WhatsApp festival greeting images for your business"
         ctaText="Get started"
         onCtaClick={() => {
           setMode("email");
