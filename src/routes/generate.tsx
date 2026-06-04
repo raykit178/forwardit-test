@@ -458,17 +458,33 @@ function GenerateScreen() {
         {/* Top bar */}
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
           <div className="flex items-center justify-between px-5 py-4">
-            <span className="text-xl font-bold tracking-tight text-primary">
-              Navo
-            </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setShowPaywall(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
+                onClick={handleSignOut}
+                className="text-xs text-muted-foreground hover:underline"
               >
-                Upgrade to Pro ✦
+                Sign out
               </button>
+              <span className="text-xl font-bold tracking-tight text-primary">
+                Navo
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col items-end gap-0.5">
+                <button
+                  onClick={() => setShowPaywall(true)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                  style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
+                >
+                  Upgrade to Pro ✦
+                </button>
+                <button
+                  onClick={() => navigate({ to: "/brand-setup" })}
+                  className="text-xs text-muted-foreground hover:underline"
+                >
+                  Edit brand details
+                </button>
+              </div>
               <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold">
                 {initials}
               </div>
