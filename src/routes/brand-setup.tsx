@@ -92,9 +92,10 @@ function BrandSetupScreen() {
     });
   }, [navigate]);
 
+  const hasLogo = logoFile !== null || (isEditing && savedLogoUrl !== null);
   const canSubmit =
     businessName.trim().length > 0 &&
-    logoDataUrl !== null &&
+    hasLogo &&
     brandColor !== "" &&
     contactNumber.trim().length > 0 &&
     !saving;
