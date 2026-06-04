@@ -566,6 +566,35 @@ function GenerateScreen() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={showManageModal} onOpenChange={setShowManageModal}>
+        <DialogContent className="max-w-[360px] rounded-2xl bg-white sm:rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-foreground">
+              Your Navo Pro subscription
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              {subscriptionPlan === "annual"
+                ? "Annual ₹3,999/year"
+                : "Monthly ₹499/month"}
+            </DialogDescription>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            To cancel your subscription, contact us at hello.getnavo@outlook.com
+          </p>
+          <DialogFooter className="flex flex-col gap-2 sm:flex-col sm:space-x-0">
+            <Button
+              onClick={() => setShowManageModal(false)}
+              variant="outline"
+              size="lg"
+              className="w-full h-12 text-base font-medium rounded-xl"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
       <div className="w-full max-w-[430px] flex flex-col pb-32">
         <canvas ref={canvasRef} className="hidden" />
         {/* Top bar */}
