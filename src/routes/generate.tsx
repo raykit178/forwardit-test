@@ -690,14 +690,14 @@ function GenerateScreen() {
 
             <section className="pt-8 px-5">
               <h2 className="text-sm font-semibold text-foreground">Choose a style</h2>
-              <div className="mt-3 grid grid-cols-3 gap-2.5">
+              <div className="mt-3 grid grid-cols-2 gap-2.5">
                 {STYLES.map((s) => {
                   const selected = style === s.name;
                   return (
                     <button
                       key={s.name}
                       onClick={() => setStyle(s.name)}
-                      className={`flex flex-col items-start rounded-xl border-2 bg-background p-3 text-left transition-colors ${
+                      className={`flex flex-col items-start rounded-xl border-2 bg-background p-2.5 text-left transition-colors ${
                         selected
                           ? "border-primary"
                           : "border-input hover:border-muted-foreground/30"
