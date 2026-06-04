@@ -34,6 +34,9 @@ export function ImageCarouselHero({
   description,
   ctaText,
   onCtaClick,
+  ctaDisabled = false,
+  aboveCta,
+  belowCta,
   images,
   features = [
     {
