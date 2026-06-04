@@ -410,6 +410,11 @@ function GenerateScreen() {
     }, 'image/png');
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  };
+
   const showSelectors = phase === "idle";
 
   return (
