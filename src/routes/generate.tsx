@@ -41,7 +41,9 @@ function GenerateScreen() {
   const navigate = useNavigate();
   const [brand, setBrand] = useState<Brand | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [isSubscribed] = useState(false); // Placeholder for billing state.
+  const [subscriptionStatus, setSubscriptionStatus] = useState<"free" | "active">("free");
+  const [subscriptionPlan, setSubscriptionPlan] = useState<"monthly" | "annual" | null>(null);
+  const isSubscribed = subscriptionStatus === "active";
 
   const [occasion, setOccasion] = useState<string | null>(null);
   const [style, setStyle] = useState<string | null>(null);
@@ -58,6 +60,7 @@ function GenerateScreen() {
   const limit = isSubscribed ? PAID_LIMIT : FREE_LIMIT;
   const overLimit = usedCount >= limit;
   const [showPaywall, setShowPaywall] = useState(false);
+  const [showManageModal, setShowManageModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "annual">("monthly");
   const [subscribing, setSubscribing] = useState(false);
 
