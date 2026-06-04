@@ -132,15 +132,6 @@ function SignInScreen() {
         images={HERO_IMAGES}
       />
       <div id="signin-block" className="w-full max-w-[430px] flex flex-col px-6 pt-4 pb-10">
-        <header className="flex flex-col items-start">
-          <h1 className="text-4xl font-bold tracking-tight text-primary">
-            Navo
-          </h1>
-          <p className="mt-3 text-base text-muted-foreground">
-            Your brand. Every festival. 30 seconds.
-          </p>
-        </header>
-
         <div className="mt-auto flex flex-col gap-3 pt-16">
           {mode === "buttons" && (
             <>
