@@ -333,7 +333,7 @@ function BrandSetupScreen() {
             size="lg"
             className="w-full h-12 text-base font-medium rounded-xl"
           >
-            {saving ? "Saving..." : "Save & Continue"}
+            {saving ? "Saving..." : isEditing ? "Save changes" : "Save & Continue"}
           </Button>
         </div>
       </div>
