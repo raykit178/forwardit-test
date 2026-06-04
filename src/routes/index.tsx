@@ -123,7 +123,7 @@ function SignInScreen() {
       <ImageCarouselHero
         title="Navo"
         subtitle="Greetings with your brand. For every occasion "
-        description="AI-powered WhatsApp festival greeting images for your business"
+        description="AI-generated branded festival images — in English, Hindi and Marathi. Ready to forward on WhatsApp in 30 seconds."
         ctaText={
           mode === "email"
             ? sent
