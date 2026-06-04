@@ -75,10 +75,20 @@ function BrandSetupScreen() {
       }
       const { data: profile } = await supabase
         .from("profiles")
-        .select("extra_info")
+        .select("business_name, logo_url, brand_colour, contact_number, extra_info")
         .eq("user_id", data.session.user.id)
         .maybeSingle();
-      if (profile?.extra_info) setExtraInfo(profile.extra_info);
+      if (profile) {
+        setIsEditing(true);
+        if (profile.business_name) setBusinessName(profile.business_name);
+        if (profile.brand_colour) setBrandColor(profile.brand_colour);
+        if (profile.contact_number) setContactNumber(profile.contact_number);
+        if (profile.extra_info) setExtraInfo(profile.extra_info);
+        if (profile.logo_url) {
+          setLogoDataUrl(profile.logo_url);
+          setSavedLogoUrl(profile.logo_url);
+        }
+      }
     });
   }, [navigate]);
 
