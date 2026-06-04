@@ -145,12 +145,13 @@ function GenerateScreen() {
     }
   };
 
-  const loadUsage = async (uid: string) => {
+  const loadUsage = async (uid: string, activeOverride?: boolean) => {
+    const active = activeOverride ?? isSubscribed;
     let query = supabase
       .from("generations")
       .select("id", { count: "exact", head: true })
       .eq("user_id", uid);
-    if (isSubscribed) {
+    if (active) {
       const start = new Date();
       start.setDate(1);
       start.setHours(0, 0, 0, 0);
