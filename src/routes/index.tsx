@@ -106,15 +106,6 @@ function SignInScreen() {
     else setSent(true);
   };
 
-  const handlePasswordSignIn = async () => {
-    if (!email || !password) return;
-    setPasswordLoading(true);
-    setPasswordError(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setPasswordLoading(false);
-    if (error) setPasswordError("Invalid email or password");
-  };
-
   return (
     <main className="min-h-[100dvh] bg-background flex justify-center">
       <div className="w-full max-w-[430px] flex flex-col px-6 pt-20 pb-10">
