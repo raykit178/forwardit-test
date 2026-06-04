@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, AlertTriangle, Download, MessageCircle, Pencil, LogOut } from "lucide-react";
+import { Check, AlertTriangle, Download, MessageCircle, Pencil, LogOut, CreditCard } from "lucide-react";
 import { supabase, SUPABASE_FUNCTIONS_URL } from "@/lib/supabase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -41,7 +41,9 @@ function GenerateScreen() {
   const navigate = useNavigate();
   const [brand, setBrand] = useState<Brand | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [isSubscribed] = useState(false); // Placeholder for billing state.
+  const [subscriptionStatus, setSubscriptionStatus] = useState<"free" | "active">("free");
+  const [subscriptionPlan, setSubscriptionPlan] = useState<"monthly" | "annual" | null>(null);
+  const isSubscribed = subscriptionStatus === "active";
 
   const [occasion, setOccasion] = useState<string | null>(null);
   const [style, setStyle] = useState<string | null>(null);
@@ -58,6 +60,7 @@ function GenerateScreen() {
   const limit = isSubscribed ? PAID_LIMIT : FREE_LIMIT;
   const overLimit = usedCount >= limit;
   const [showPaywall, setShowPaywall] = useState(false);
+  const [showManageModal, setShowManageModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "annual">("monthly");
   const [subscribing, setSubscribing] = useState(false);
 
@@ -99,8 +102,26 @@ function GenerateScreen() {
                 subscription_plan: selectedPlan,
               })
               .eq('user_id', s2?.user?.id);
+            setSubscriptionStatus('active');
+            setSubscriptionPlan(selectedPlan);
             setShowPaywall(false);
             alert('Subscription activated! You can now generate up to 10 images per month.');
+          },
+          "modal": {
+            ondismiss: async function () {
+              const { data: { session: s3 } } = await supabase.auth.getSession();
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('subscription_status, subscription_plan')
+                .eq('user_id', s3?.user?.id)
+                .single();
+
+              if (profile?.subscription_status === 'active') {
+                setShowPaywall(false);
+                setSubscriptionStatus('active');
+                setSubscriptionPlan(profile.subscription_plan);
+              }
+            },
           },
           prefill: {
             email: session?.user?.email,
@@ -124,12 +145,13 @@ function GenerateScreen() {
     }
   };
 
-  const loadUsage = async (uid: string) => {
+  const loadUsage = async (uid: string, activeOverride?: boolean) => {
+    const active = activeOverride ?? isSubscribed;
     let query = supabase
       .from("generations")
       .select("id", { count: "exact", head: true })
       .eq("user_id", uid);
-    if (isSubscribed) {
+    if (active) {
       const start = new Date();
       start.setDate(1);
       start.setHours(0, 0, 0, 0);
@@ -151,7 +173,7 @@ function GenerateScreen() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("business_name, logo_url, brand_colour, contact_number, extra_info")
+        .select("business_name, logo_url, brand_colour, contact_number, extra_info, subscription_status, subscription_plan")
         .eq("user_id", user.id)
         .maybeSingle();
       if (!profile) {
@@ -165,7 +187,10 @@ function GenerateScreen() {
         contactNumber: profile.contact_number ?? "",
         extraInfo: profile.extra_info ?? null,
       });
-      await loadUsage(user.id);
+      const isActive = profile.subscription_status === "active";
+      setSubscriptionStatus(isActive ? "active" : "free");
+      setSubscriptionPlan(profile.subscription_plan ?? null);
+      await loadUsage(user.id, isActive);
     })();
 
     return () => {
@@ -541,6 +566,35 @@ function GenerateScreen() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={showManageModal} onOpenChange={setShowManageModal}>
+        <DialogContent className="max-w-[360px] rounded-2xl bg-white sm:rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-foreground">
+              Your Navo Pro subscription
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              {subscriptionPlan === "annual"
+                ? "Annual ₹3,999/year"
+                : "Monthly ₹499/month"}
+            </DialogDescription>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            To cancel your subscription, contact us at hello.getnavo@outlook.com
+          </p>
+          <DialogFooter className="flex flex-col gap-2 sm:flex-col sm:space-x-0">
+            <Button
+              onClick={() => setShowManageModal(false)}
+              variant="outline"
+              size="lg"
+              className="w-full h-12 text-base font-medium rounded-xl"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
       <div className="w-full max-w-[430px] flex flex-col pb-32">
         <canvas ref={canvasRef} className="hidden" />
         {/* Top bar */}
@@ -550,13 +604,22 @@ function GenerateScreen() {
               Navo
             </span>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowPaywall(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
-              >
-                Upgrade to Pro ✦
-              </button>
+              {isSubscribed ? (
+                <span
+                  className="px-3 py-1.5 text-xs font-medium"
+                  style={{ color: '#0073F8' }}
+                >
+                  Pro ✦
+                </span>
+              ) : (
+                <button
+                  onClick={() => setShowPaywall(true)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                  style={{ borderColor: '#0073F8', color: '#0073F8', backgroundColor: 'transparent' }}
+                >
+                  Upgrade to Pro ✦
+                </button>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
@@ -577,6 +640,19 @@ function GenerateScreen() {
                   >
                     <Pencil className="size-4" />
                     Edit brand details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (isSubscribed) {
+                        setShowManageModal(true);
+                      } else {
+                        setShowPaywall(true);
+                      }
+                    }}
+                    className="gap-2 px-3 py-2 text-sm text-foreground rounded-lg cursor-pointer"
+                  >
+                    <CreditCard className="size-4" />
+                    Manage subscription
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleSignOut}
