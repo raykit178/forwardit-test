@@ -3,8 +3,8 @@
   "name": "navo",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
-  "main": ".output/server/index.mjs",
+  "main": "@tanstack/react-start/server-entry",
   "assets": {
-    "directory": ".output/public"
+    "not_found_handling": "single-page-application"
   }
 }
