@@ -8,6 +8,14 @@
 
   "compatibility_flags": ["nodejs_compat"],
 
-  "main": "src/server.ts"
+  "main": "src/server.ts",
+
+  "assets": {
+
+    "directory": "./dist/client",
+
+    "not_found_handling": "single-page-application"
+
+  }
 
 }
