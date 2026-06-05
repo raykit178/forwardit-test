@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import { GenerateLoadingVisual, GenerateLoadingMicroCopy } from "@/components/generate-loading-visual";
+
 
 export const Route = createFileRoute("/generate")({
   head: () => ({
