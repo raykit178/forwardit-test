@@ -10,19 +10,7 @@ const MICRO_COPY = [
 ];
 
 export function GenerateLoadingVisual() {
-  const [idx, setIdx] = useState(0);
-  const [visible, setVisible] = useState(true);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setIdx((i) => (i + 1) % MICRO_COPY.length);
-        setVisible(true);
-      }, 500);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="flex flex-col items-center">
