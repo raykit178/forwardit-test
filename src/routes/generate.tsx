@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import { GenerateLoadingVisual, GenerateLoadingMicroCopy } from "@/components/generate-loading-visual";
+
 
 export const Route = createFileRoute("/generate")({
   head: () => ({
@@ -786,7 +788,11 @@ function GenerateScreen() {
 
         {phase === "loading" && (
           <section className="px-5 pt-12 animate-fade-in">
+            <div className="mb-8 flex justify-center">
+              <GenerateLoadingVisual />
+            </div>
             <ol className="flex flex-col gap-5 max-w-xs mx-auto">
+
               {STEPS.map((step, i) => {
                 const complete = i < activeStep;
                 const active = i === activeStep;
@@ -822,8 +828,10 @@ function GenerateScreen() {
                 );
               })}
             </ol>
+            <GenerateLoadingMicroCopy />
           </section>
         )}
+
 
         {phase === "error" && (
           <section className="px-5 pt-16 flex flex-col items-center text-center animate-fade-in">
