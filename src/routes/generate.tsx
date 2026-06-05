@@ -828,8 +828,10 @@ function GenerateScreen() {
                 );
               })}
             </ol>
+            <GenerateLoadingMicroCopy />
           </section>
         )}
+
 
         {phase === "error" && (
           <section className="px-5 pt-16 flex flex-col items-center text-center animate-fade-in">
