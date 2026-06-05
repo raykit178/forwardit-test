@@ -19,7 +19,7 @@ export const Route = createFileRoute("/generate")({
 const STYLES = [
   { name: "Vibrant", desc: "Bold colours, festive energy" },
   { name: "Minimal", desc: "Clean, modern, lots of space" },
-  { name: "Elegant", desc: "Refined, premium, sophisticated" },
+  { name: "Elegant", desc: "Refined, premium feel" },
   { name: "Word Art", desc: "Bold text, creative layouts" },
 ];
 
