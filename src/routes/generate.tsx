@@ -788,7 +788,11 @@ function GenerateScreen() {
 
         {phase === "loading" && (
           <section className="px-5 pt-12 animate-fade-in">
+            <div className="mb-8 flex justify-center">
+              <GenerateLoadingVisual />
+            </div>
             <ol className="flex flex-col gap-5 max-w-xs mx-auto">
+
               {STEPS.map((step, i) => {
                 const complete = i < activeStep;
                 const active = i === activeStep;
