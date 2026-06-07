@@ -359,15 +359,12 @@ function GenerateScreen() {
             }
             const avgLum = total / pixels;
             const stampColor = avgLum > 128 ? "rgba(0, 0, 0, 0.55)" : "rgba(255, 255, 255, 0.65)";
-            ctx.save();
-            ctx.translate(20, 755);
-            ctx.rotate(-Math.PI / 2);
-            ctx.font = `400 16px DM Sans, sans-serif`;
+            ctx.font = `500 16px 'DM Sans', sans-serif`;
             ctx.fillStyle = stampColor;
-            ctx.textAlign = "right";
-            ctx.textBaseline = "alphabetic";
+            ctx.textAlign = "left";
+            ctx.translate(20, 758);
+            ctx.rotate(-Math.PI / 2);
             ctx.fillText("getnavo.in", 0, 0);
-            ctx.restore();
             ctx.setTransform(1, 0, 0, 1, 0, 0);
           } catch (e) {
             // ignore sampling errors (e.g. tainted canvas)
