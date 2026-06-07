@@ -362,7 +362,7 @@ function GenerateScreen() {
             ctx.font = `500 16px 'DM Sans', sans-serif`;
             ctx.fillStyle = stampColor;
             ctx.textAlign = "left";
-            ctx.translate(20, 758);
+            ctx.translate(20, 660);
             ctx.rotate(-Math.PI / 2);
             ctx.fillText("getnavo.in", 0, 0);
             ctx.setTransform(1, 0, 0, 1, 0, 0);
