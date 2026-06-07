@@ -359,10 +359,10 @@ function GenerateScreen() {
             }
             const avgLum = total / pixels;
             const stampColor = avgLum > 128 ? "rgba(0, 0, 0, 0.55)" : "rgba(255, 255, 255, 0.65)";
-            ctx.font = `500 16px 'DM Sans', sans-serif`;
+            ctx.font = `500 20px 'DM Sans'`;
             ctx.fillStyle = stampColor;
             ctx.textAlign = "left";
-            ctx.translate(20, 660);
+            ctx.translate(20, 720);
             ctx.rotate(-Math.PI / 2);
             ctx.fillText("getnavo.in", 0, 0);
             ctx.setTransform(1, 0, 0, 1, 0, 0);
