@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { ImageCarouselHero } from "@/components/ui/ai-image-generator-hero";
 
@@ -220,10 +220,7 @@ function SignInScreen() {
                 </ul>
               </div>
               {/* Annual */}
-              <div
-                className="rounded-2xl border-2 bg-card p-6 flex flex-col shadow-lg"
-                style={{ borderColor: "#0073F8" }}
-              >
+              <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-medium text-muted-foreground">Annual</div>
                   <span
@@ -246,6 +243,9 @@ function SignInScreen() {
             </div>
           </section>
 
+          <div className="mt-10 flex justify-center">
+            <EmailSignup />
+          </div>
 
           <p className="mt-8 text-center text-xs text-muted-foreground leading-relaxed px-4">
             By continuing, you agree to our{" "}
@@ -263,4 +263,90 @@ function SignInScreen() {
     </main>
   );
 }
+
+function EmailSignup() {
+  const [mode, setMode] = useState<"buttons" | "email">("buttons");
+  const [email, setEmail] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleEmail = async () => {
+    if (!email) return;
+    setSending(true);
+    setError(null);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
+    setSending(false);
+    if (error) setError(error.message);
+    else setSent(true);
+  };
+
+  const ctaText =
+    mode === "email"
+      ? sent
+        ? "Magic link sent"
+        : sending
+          ? "Sending..."
+          : "Send magic link"
+      : "Continue with email";
+
+  const ctaDisabled = mode === "email" && (sending || sent || !email);
+
+  return (
+    <div className="flex w-full max-w-sm flex-col items-center">
+      {mode === "email" && !sent && (
+        <div className="flex w-full flex-col gap-2">
+          <Input
+            type="email"
+            placeholder="you@business.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-12 rounded-xl text-base"
+          />
+          {error && (
+            <p className="text-xs text-destructive text-left px-1">{error}</p>
+          )}
+        </div>
+      )}
+      {mode === "email" && sent && (
+        <div className="w-full rounded-xl border border-input bg-muted/30 p-4 text-sm text-foreground text-center">
+          Check your inbox for a sign-in link sent to{" "}
+          <span className="font-medium">{email}</span>.
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={() => {
+          if (mode === "buttons") {
+            setMode("email");
+          } else if (!sent) {
+            handleEmail();
+          }
+        }}
+        disabled={ctaDisabled}
+        className="group mt-4 inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-6 text-base font-medium text-primary-foreground shadow-lg transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:hover:translate-y-0"
+      >
+        {ctaText}
+        <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+      </button>
+
+      {mode === "email" && !sent && (
+        <button
+          onClick={() => {
+            setMode("buttons");
+            setError(null);
+          }}
+          className="mt-3 text-xs text-muted-foreground hover:text-foreground"
+        >
+          ← Back
+        </button>
+      )}
+    </div>
+  );
+}
+
 
