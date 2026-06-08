@@ -1,11 +1,145 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, ImageIcon } from "lucide-react";
+import { Upload, ImageIcon, Sparkles, Check } from "lucide-react";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
+
+const LATIN_FONTS = ["DM Sans", "Playfair Display", "Poppins"] as const;
+const DEVANAGARI_FONTS = ["Tiro Devanagari Hindi", "Rozha One", "Baloo 2"] as const;
+const TEXT_LOGO_COLORS = ["#013375", "#014944", "#6a004a", "#6e001a", "#d7701c"] as const;
+const GOOGLE_FONTS_HREF =
+  "https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Playfair+Display:wght@700&family=Poppins:wght@700&family=Tiro+Devanagari+Hindi&family=Rozha+One&family=Baloo+2:wght@700&display=swap";
+
+function ensureGoogleFontsLoaded() {
+  if (typeof document === "undefined") return;
+  if (document.getElementById("text-logo-fonts")) return;
+  const link = document.createElement("link");
+  link.id = "text-logo-fonts";
+  link.rel = "stylesheet";
+  link.href = GOOGLE_FONTS_HREF;
+  document.head.appendChild(link);
+}
+
+function isDevanagari(s: string) {
+  return /[\u0900-\u097F]/.test(s);
+}
+
+// Compute a font size + line layout that fits text within container at 90% width.
+function fitText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  font: string,
+  startSize: number,
+  minSize: number,
+  maxWidth: number,
+): { size: number; lines: string[] } {
+  const upper = text.toUpperCase();
+  for (let size = startSize; size >= minSize; size -= 2) {
+    ctx.font = `700 ${size}px "${font}", system-ui, sans-serif`;
+    if (ctx.measureText(upper).width <= maxWidth) {
+      return { size, lines: [upper] };
+    }
+  }
+  // wrap to 2 lines at minSize
+  ctx.font = `700 ${minSize}px "${font}", system-ui, sans-serif`;
+  const words = upper.split(/\s+/);
+  if (words.length > 1) {
+    // find best split point
+    let best: { a: string; b: string } | null = null;
+    for (let i = 1; i < words.length; i++) {
+      const a = words.slice(0, i).join(" ");
+      const b = words.slice(i).join(" ");
+      const wa = ctx.measureText(a).width;
+      const wb = ctx.measureText(b).width;
+      const worst = Math.max(wa, wb);
+      if (!best || worst < Math.max(ctx.measureText(best.a).width, ctx.measureText(best.b).width)) {
+        best = { a, b };
+      }
+    }
+    if (best) return { size: minSize, lines: [best.a, best.b] };
+  }
+  // character split
+  const mid = Math.ceil(upper.length / 2);
+  return { size: minSize, lines: [upper.slice(0, mid), upper.slice(mid)] };
+}
+
+function drawTextLogo(
+  canvas: HTMLCanvasElement,
+  opts: { text: string; font: string; color: string; scale: number },
+) {
+  const { text, font, color, scale } = opts;
+  const W = 320 * scale;
+  const H = 128 * scale;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+  ctx.clearRect(0, 0, W, H);
+
+  const outerStroke = 3 * scale;
+  const innerStroke = 2 * scale;
+  const innerGap = 6 * scale;
+  const radius = 16 * scale;
+
+  // Fill container
+  const x = outerStroke / 2;
+  const y = outerStroke / 2;
+  const w = W - outerStroke;
+  const h = H - outerStroke;
+
+  // Rounded rect path
+  const rr = (cx: number, cy: number, cw: number, ch: number, r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(cx + r, cy);
+    ctx.arcTo(cx + cw, cy, cx + cw, cy + ch, r);
+    ctx.arcTo(cx + cw, cy + ch, cx, cy + ch, r);
+    ctx.arcTo(cx, cy + ch, cx, cy, r);
+    ctx.arcTo(cx, cy, cx + cw, cy, r);
+    ctx.closePath();
+  };
+
+  // Fill
+  ctx.fillStyle = color;
+  rr(x, y, w, h, radius);
+  ctx.fill();
+
+  // Outer stroke (same colour)
+  ctx.strokeStyle = color;
+  ctx.lineWidth = outerStroke;
+  rr(x, y, w, h, radius);
+  ctx.stroke();
+
+  // Inner white border, inset by innerGap from inside edge
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = innerStroke;
+  rr(
+    x + innerGap,
+    y + innerGap,
+    w - innerGap * 2,
+    h - innerGap * 2,
+    Math.max(2, radius - innerGap),
+  );
+  ctx.stroke();
+
+  // Text
+  const startSize = 48 * scale;
+  const minSize = (scale >= 2 ? 44 : 22);
+  const maxWidth = w * 0.9;
+  const { size, lines } = fitText(ctx, text, font, startSize, minSize, maxWidth);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `700 ${size}px "${font}", system-ui, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const lineHeight = size * 1.1;
+  const totalH = lineHeight * lines.length;
+  const startY = H / 2 - totalH / 2 + lineHeight / 2;
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], W / 2, startY + i * lineHeight);
+  }
+}
 
 const EXTRA_INFO_MAX = 56;
 
@@ -66,6 +200,94 @@ function BrandSetupScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [savedLogoUrl, setSavedLogoUrl] = useState<string | null>(null);
+  const [showTextGen, setShowTextGen] = useState(false);
+  const [selectedFont, setSelectedFont] = useState<string>("DM Sans");
+  const [selectedTextColor, setSelectedTextColor] = useState<string>("#013375");
+  const [generatingLogo, setGeneratingLogo] = useState(false);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  const fontOptions = useMemo(
+    () => (isDevanagari(businessName) ? DEVANAGARI_FONTS : LATIN_FONTS),
+    [businessName],
+  );
+
+  // Keep selectedFont valid for the current script
+  useEffect(() => {
+    if (!fontOptions.includes(selectedFont as never)) {
+      setSelectedFont(fontOptions[0]);
+    }
+  }, [fontOptions, selectedFont]);
+
+  useEffect(() => {
+    if (showTextGen) ensureGoogleFontsLoaded();
+  }, [showTextGen]);
+
+  // Live preview redraw
+  useEffect(() => {
+    if (!showTextGen || !previewCanvasRef.current || !businessName.trim()) return;
+    const canvas = previewCanvasRef.current;
+    let cancelled = false;
+    const draw = () => {
+      if (cancelled) return;
+      drawTextLogo(canvas, {
+        text: businessName.trim(),
+        font: selectedFont,
+        color: selectedTextColor,
+        scale: 1,
+      });
+    };
+    draw();
+    // Redraw once the chosen font is ready
+    if (typeof document !== "undefined" && (document as any).fonts?.load) {
+      (document as any).fonts
+        .load(`700 48px "${selectedFont}"`)
+        .then(() => draw())
+        .catch(() => {});
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [showTextGen, businessName, selectedFont, selectedTextColor]);
+
+  const handleUseTextLogo = async () => {
+    if (!businessName.trim()) return;
+    setGeneratingLogo(true);
+    try {
+      // Ensure chosen font is loaded before rendering export canvas
+      if (typeof document !== "undefined" && (document as any).fonts?.load) {
+        try {
+          await (document as any).fonts.load(`700 96px "${selectedFont}"`);
+        } catch {}
+      }
+      const exportCanvas = document.createElement("canvas");
+      drawTextLogo(exportCanvas, {
+        text: businessName.trim(),
+        font: selectedFont,
+        color: selectedTextColor,
+        scale: 2,
+      });
+      const blob: Blob = await new Promise((resolve, reject) =>
+        exportCanvas.toBlob(
+          (b) => (b ? resolve(b) : reject(new Error("Canvas export failed"))),
+          "image/png",
+        ),
+      );
+      const file = new File([blob], "text-logo.png", { type: "image/png" });
+      setLogoFile(file);
+      const dataUrl = await new Promise<string>((resolve) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.readAsDataURL(blob);
+      });
+      setLogoDataUrl(dataUrl);
+      setBrandColor(selectedTextColor);
+      setShowTextGen(false);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setGeneratingLogo(false);
+    }
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
@@ -254,7 +476,108 @@ function BrandSetupScreen() {
               </div>
               <Upload className="ml-auto size-4 text-muted-foreground" />
             </button>
+
+            {/* Text logo generator trigger */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowTextGen((v) => !v)}
+              className="mt-1 h-11 rounded-xl bg-transparent hover:bg-transparent"
+            >
+              <Sparkles className="size-4" />
+              Don't have a logo? Generate one
+            </Button>
+
+            {showTextGen && (
+              <div className="mt-3 flex flex-col gap-4 rounded-xl border border-input bg-muted/20 p-4">
+                {!businessName.trim() && (
+                  <p className="text-xs text-muted-foreground">
+                    Enter your business name above to preview the text logo.
+                  </p>
+                )}
+
+                {/* Font options */}
+                <div className="flex flex-col gap-2">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Choose a font
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {fontOptions.map((font) => {
+                      const active = selectedFont === font;
+                      return (
+                        <button
+                          key={font}
+                          type="button"
+                          onClick={() => setSelectedFont(font)}
+                          style={{ fontFamily: `"${font}", system-ui, sans-serif` }}
+                          className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                            active
+                              ? "bg-foreground text-background"
+                              : "bg-background text-foreground border border-input"
+                          }`}
+                        >
+                          {businessName.trim() || "Your Brand"}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Colour swatches */}
+                <div className="flex flex-col gap-2">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Choose a colour
+                  </Label>
+                  <div className="flex gap-3">
+                    {TEXT_LOGO_COLORS.map((c) => {
+                      const active = selectedTextColor === c;
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          aria-label={c}
+                          onClick={() => setSelectedTextColor(c)}
+                          className={`size-9 rounded-full flex items-center justify-center transition-transform ${
+                            active ? "ring-2 ring-offset-2 ring-foreground scale-110" : ""
+                          }`}
+                          style={{ backgroundColor: c }}
+                        >
+                          {active && <Check className="size-4 text-white" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Live preview */}
+                <div className="flex flex-col gap-2">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Preview
+                  </Label>
+                  <div className="flex justify-center">
+                    <canvas
+                      ref={previewCanvasRef}
+                      width={320}
+                      height={128}
+                      style={{ width: 320, height: 128 }}
+                      className="rounded-lg"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!businessName.trim() || generatingLogo}
+                  onClick={handleUseTextLogo}
+                  className="h-11 rounded-xl bg-transparent hover:bg-transparent"
+                >
+                  {generatingLogo ? "Generating..." : "Use this as my logo"}
+                </Button>
+              </div>
+            )}
           </div>
+
 
           {/* Brand color */}
           <div className="flex flex-col gap-2">
