@@ -1,11 +1,145 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, ImageIcon } from "lucide-react";
+import { Upload, ImageIcon, Sparkles, Check } from "lucide-react";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
+
+const LATIN_FONTS = ["DM Sans", "Playfair Display", "Poppins"] as const;
+const DEVANAGARI_FONTS = ["Tiro Devanagari Hindi", "Rozha One", "Baloo 2"] as const;
+const TEXT_LOGO_COLORS = ["#013375", "#014944", "#6a004a", "#6e001a", "#d7701c"] as const;
+const GOOGLE_FONTS_HREF =
+  "https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Playfair+Display:wght@700&family=Poppins:wght@700&family=Tiro+Devanagari+Hindi&family=Rozha+One&family=Baloo+2:wght@700&display=swap";
+
+function ensureGoogleFontsLoaded() {
+  if (typeof document === "undefined") return;
+  if (document.getElementById("text-logo-fonts")) return;
+  const link = document.createElement("link");
+  link.id = "text-logo-fonts";
+  link.rel = "stylesheet";
+  link.href = GOOGLE_FONTS_HREF;
+  document.head.appendChild(link);
+}
+
+function isDevanagari(s: string) {
+  return /[\u0900-\u097F]/.test(s);
+}
+
+// Compute a font size + line layout that fits text within container at 90% width.
+function fitText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  font: string,
+  startSize: number,
+  minSize: number,
+  maxWidth: number,
+): { size: number; lines: string[] } {
+  const upper = text.toUpperCase();
+  for (let size = startSize; size >= minSize; size -= 2) {
+    ctx.font = `700 ${size}px "${font}", system-ui, sans-serif`;
+    if (ctx.measureText(upper).width <= maxWidth) {
+      return { size, lines: [upper] };
+    }
+  }
+  // wrap to 2 lines at minSize
+  ctx.font = `700 ${minSize}px "${font}", system-ui, sans-serif`;
+  const words = upper.split(/\s+/);
+  if (words.length > 1) {
+    // find best split point
+    let best: { a: string; b: string } | null = null;
+    for (let i = 1; i < words.length; i++) {
+      const a = words.slice(0, i).join(" ");
+      const b = words.slice(i).join(" ");
+      const wa = ctx.measureText(a).width;
+      const wb = ctx.measureText(b).width;
+      const worst = Math.max(wa, wb);
+      if (!best || worst < Math.max(ctx.measureText(best.a).width, ctx.measureText(best.b).width)) {
+        best = { a, b };
+      }
+    }
+    if (best) return { size: minSize, lines: [best.a, best.b] };
+  }
+  // character split
+  const mid = Math.ceil(upper.length / 2);
+  return { size: minSize, lines: [upper.slice(0, mid), upper.slice(mid)] };
+}
+
+function drawTextLogo(
+  canvas: HTMLCanvasElement,
+  opts: { text: string; font: string; color: string; scale: number },
+) {
+  const { text, font, color, scale } = opts;
+  const W = 320 * scale;
+  const H = 128 * scale;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+  ctx.clearRect(0, 0, W, H);
+
+  const outerStroke = 3 * scale;
+  const innerStroke = 2 * scale;
+  const innerGap = 6 * scale;
+  const radius = 16 * scale;
+
+  // Fill container
+  const x = outerStroke / 2;
+  const y = outerStroke / 2;
+  const w = W - outerStroke;
+  const h = H - outerStroke;
+
+  // Rounded rect path
+  const rr = (cx: number, cy: number, cw: number, ch: number, r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(cx + r, cy);
+    ctx.arcTo(cx + cw, cy, cx + cw, cy + ch, r);
+    ctx.arcTo(cx + cw, cy + ch, cx, cy + ch, r);
+    ctx.arcTo(cx, cy + ch, cx, cy, r);
+    ctx.arcTo(cx, cy, cx + cw, cy, r);
+    ctx.closePath();
+  };
+
+  // Fill
+  ctx.fillStyle = color;
+  rr(x, y, w, h, radius);
+  ctx.fill();
+
+  // Outer stroke (same colour)
+  ctx.strokeStyle = color;
+  ctx.lineWidth = outerStroke;
+  rr(x, y, w, h, radius);
+  ctx.stroke();
+
+  // Inner white border, inset by innerGap from inside edge
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = innerStroke;
+  rr(
+    x + innerGap,
+    y + innerGap,
+    w - innerGap * 2,
+    h - innerGap * 2,
+    Math.max(2, radius - innerGap),
+  );
+  ctx.stroke();
+
+  // Text
+  const startSize = 48 * scale;
+  const minSize = (scale >= 2 ? 44 : 22);
+  const maxWidth = w * 0.9;
+  const { size, lines } = fitText(ctx, text, font, startSize, minSize, maxWidth);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `700 ${size}px "${font}", system-ui, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const lineHeight = size * 1.1;
+  const totalH = lineHeight * lines.length;
+  const startY = H / 2 - totalH / 2 + lineHeight / 2;
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], W / 2, startY + i * lineHeight);
+  }
+}
 
 const EXTRA_INFO_MAX = 56;
 
