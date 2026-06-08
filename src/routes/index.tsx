@@ -220,10 +220,7 @@ function SignInScreen() {
                 </ul>
               </div>
               {/* Annual */}
-              <div
-                className="rounded-2xl border-2 bg-card p-6 flex flex-col shadow-lg"
-                style={{ borderColor: "#0073F8" }}
-              >
+              <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-medium text-muted-foreground">Annual</div>
                   <span
