@@ -186,7 +186,7 @@ function SignInScreen() {
 
           <div className="mt-4 grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
             {[
-              { title: "No designer needed", description: "Upload your logo once. Pick a festival. Get a branded image — no skills required." },
+              { title: "Every festival, every time", description: "Never miss an occasion. A fresh image with your band for every occasion, whenever you need it." },
               { title: "Your brand, not a template", description: "Every image is generated from scratch using your logo, colours and contact number." },
               { title: "4 styles, 3 languages", description: "Vibrant, Minimal, Elegant or Word Art. In English, Hindi or Marathi." },
             ].map((feature, index) => (
