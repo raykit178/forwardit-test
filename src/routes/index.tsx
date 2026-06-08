@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { ImageCarouselHero } from "@/components/ui/ai-image-generator-hero";
 
