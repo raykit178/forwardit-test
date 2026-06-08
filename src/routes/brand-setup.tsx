@@ -200,6 +200,94 @@ function BrandSetupScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [savedLogoUrl, setSavedLogoUrl] = useState<string | null>(null);
+  const [showTextGen, setShowTextGen] = useState(false);
+  const [selectedFont, setSelectedFont] = useState<string>("DM Sans");
+  const [selectedTextColor, setSelectedTextColor] = useState<string>("#013375");
+  const [generatingLogo, setGeneratingLogo] = useState(false);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  const fontOptions = useMemo(
+    () => (isDevanagari(businessName) ? DEVANAGARI_FONTS : LATIN_FONTS),
+    [businessName],
+  );
+
+  // Keep selectedFont valid for the current script
+  useEffect(() => {
+    if (!fontOptions.includes(selectedFont as never)) {
+      setSelectedFont(fontOptions[0]);
+    }
+  }, [fontOptions, selectedFont]);
+
+  useEffect(() => {
+    if (showTextGen) ensureGoogleFontsLoaded();
+  }, [showTextGen]);
+
+  // Live preview redraw
+  useEffect(() => {
+    if (!showTextGen || !previewCanvasRef.current || !businessName.trim()) return;
+    const canvas = previewCanvasRef.current;
+    let cancelled = false;
+    const draw = () => {
+      if (cancelled) return;
+      drawTextLogo(canvas, {
+        text: businessName.trim(),
+        font: selectedFont,
+        color: selectedTextColor,
+        scale: 1,
+      });
+    };
+    draw();
+    // Redraw once the chosen font is ready
+    if (typeof document !== "undefined" && (document as any).fonts?.load) {
+      (document as any).fonts
+        .load(`700 48px "${selectedFont}"`)
+        .then(() => draw())
+        .catch(() => {});
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [showTextGen, businessName, selectedFont, selectedTextColor]);
+
+  const handleUseTextLogo = async () => {
+    if (!businessName.trim()) return;
+    setGeneratingLogo(true);
+    try {
+      // Ensure chosen font is loaded before rendering export canvas
+      if (typeof document !== "undefined" && (document as any).fonts?.load) {
+        try {
+          await (document as any).fonts.load(`700 96px "${selectedFont}"`);
+        } catch {}
+      }
+      const exportCanvas = document.createElement("canvas");
+      drawTextLogo(exportCanvas, {
+        text: businessName.trim(),
+        font: selectedFont,
+        color: selectedTextColor,
+        scale: 2,
+      });
+      const blob: Blob = await new Promise((resolve, reject) =>
+        exportCanvas.toBlob(
+          (b) => (b ? resolve(b) : reject(new Error("Canvas export failed"))),
+          "image/png",
+        ),
+      );
+      const file = new File([blob], "text-logo.png", { type: "image/png" });
+      setLogoFile(file);
+      const dataUrl = await new Promise<string>((resolve) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.readAsDataURL(blob);
+      });
+      setLogoDataUrl(dataUrl);
+      setBrandColor(selectedTextColor);
+      setShowTextGen(false);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setGeneratingLogo(false);
+    }
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
