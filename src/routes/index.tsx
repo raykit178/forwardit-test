@@ -243,6 +243,9 @@ function SignInScreen() {
             </div>
           </section>
 
+          <div className="mt-10 flex justify-center">
+            <EmailSignup />
+          </div>
 
           <p className="mt-8 text-center text-xs text-muted-foreground leading-relaxed px-4">
             By continuing, you agree to our{" "}
