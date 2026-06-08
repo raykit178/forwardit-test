@@ -476,7 +476,108 @@ function BrandSetupScreen() {
               </div>
               <Upload className="ml-auto size-4 text-muted-foreground" />
             </button>
+
+            {/* Text logo generator trigger */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowTextGen((v) => !v)}
+              className="mt-1 h-11 rounded-xl bg-transparent hover:bg-transparent"
+            >
+              <Sparkles className="size-4" />
+              Don't have a logo? Generate one
+            </Button>
+
+            {showTextGen && (
+              <div className="mt-3 flex flex-col gap-4 rounded-xl border border-input bg-muted/20 p-4">
+                {!businessName.trim() && (
+                  <p className="text-xs text-muted-foreground">
+                    Enter your business name above to preview the text logo.
+                  </p>
+                )}
+
+                {/* Font options */}
+                <div className="flex flex-col gap-2">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Choose a font
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {fontOptions.map((font) => {
+                      const active = selectedFont === font;
+                      return (
+                        <button
+                          key={font}
+                          type="button"
+                          onClick={() => setSelectedFont(font)}
+                          style={{ fontFamily: `"${font}", system-ui, sans-serif` }}
+                          className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                            active
+                              ? "bg-foreground text-background"
+                              : "bg-background text-foreground border border-input"
+                          }`}
+                        >
+                          {businessName.trim() || "Your Brand"}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Colour swatches */}
+                <div className="flex flex-col gap-2">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Choose a colour
+                  </Label>
+                  <div className="flex gap-3">
+                    {TEXT_LOGO_COLORS.map((c) => {
+                      const active = selectedTextColor === c;
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          aria-label={c}
+                          onClick={() => setSelectedTextColor(c)}
+                          className={`size-9 rounded-full flex items-center justify-center transition-transform ${
+                            active ? "ring-2 ring-offset-2 ring-foreground scale-110" : ""
+                          }`}
+                          style={{ backgroundColor: c }}
+                        >
+                          {active && <Check className="size-4 text-white" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Live preview */}
+                <div className="flex flex-col gap-2">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Preview
+                  </Label>
+                  <div className="flex justify-center">
+                    <canvas
+                      ref={previewCanvasRef}
+                      width={320}
+                      height={128}
+                      style={{ width: 320, height: 128 }}
+                      className="rounded-lg"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!businessName.trim() || generatingLogo}
+                  onClick={handleUseTextLogo}
+                  className="h-11 rounded-xl bg-transparent hover:bg-transparent"
+                >
+                  {generatingLogo ? "Generating..." : "Use this as my logo"}
+                </Button>
+              </div>
+            )}
           </div>
+
 
           {/* Brand color */}
           <div className="flex flex-col gap-2">
