@@ -7,11 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Upload, ImageIcon, Sparkles, Check } from "lucide-react";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
 
-const LATIN_FONTS = ["DM Sans", "Playfair Display", "Poppins"] as const;
+const LATIN_FONTS = ["DM Sans", "Playfair Display", "Oswald"] as const;
 const DEVANAGARI_FONTS = ["Tiro Devanagari Hindi", "Rozha One", "Baloo 2"] as const;
-const TEXT_LOGO_COLORS = ["#013375", "#014944", "#6a004a", "#6e001a", "#d7701c"] as const;
+const TEXT_LOGO_COLORS = ["#013375", "#014944", "#6a004a", "#D30000", "#d7701c"] as const;
 const GOOGLE_FONTS_HREF =
-  "https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Playfair+Display:wght@700&family=Poppins:wght@700&family=Tiro+Devanagari+Hindi&family=Rozha+One&family=Baloo+2:wght@700&display=swap";
+  "https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Playfair+Display:wght@700&family=Oswald:wght@700&family=Tiro+Devanagari+Hindi&family=Rozha+One&family=Baloo+2:wght@700&display=swap";
 
 function ensureGoogleFontsLoaded() {
   if (typeof document === "undefined") return;
