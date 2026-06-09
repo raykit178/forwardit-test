@@ -37,33 +37,39 @@ function fitText(
   maxWidth: number,
 ): { size: number; lines: string[] } {
   const upper = text.toUpperCase();
+  const words = upper.split(/\s+/).filter(Boolean);
+
+  // 1. Try to fit on a single line from startSize down to minSize.
   for (let size = startSize; size >= minSize; size -= 2) {
     ctx.font = `700 ${size}px "${font}", system-ui, sans-serif`;
     if (ctx.measureText(upper).width <= maxWidth) {
       return { size, lines: [upper] };
     }
   }
-  // wrap to 2 lines at minSize
-  ctx.font = `700 ${minSize}px "${font}", system-ui, sans-serif`;
-  const words = upper.split(/\s+/);
+
+  // 2. Multi-word: wrap to 2 lines at minSize on a word boundary.
   if (words.length > 1) {
-    // find best split point
-    let best: { a: string; b: string } | null = null;
+    ctx.font = `700 ${minSize}px "${font}", system-ui, sans-serif`;
+    let best: { a: string; b: string; worst: number } | null = null;
     for (let i = 1; i < words.length; i++) {
       const a = words.slice(0, i).join(" ");
       const b = words.slice(i).join(" ");
-      const wa = ctx.measureText(a).width;
-      const wb = ctx.measureText(b).width;
-      const worst = Math.max(wa, wb);
-      if (!best || worst < Math.max(ctx.measureText(best.a).width, ctx.measureText(best.b).width)) {
-        best = { a, b };
-      }
+      const worst = Math.max(ctx.measureText(a).width, ctx.measureText(b).width);
+      if (!best || worst < best.worst) best = { a, b, worst };
     }
-    if (best) return { size: minSize, lines: [best.a, best.b] };
+    if (best && best.worst <= maxWidth) {
+      return { size: minSize, lines: [best.a, best.b] };
+    }
   }
-  // character split
-  const mid = Math.ceil(upper.length / 2);
-  return { size: minSize, lines: [upper.slice(0, mid), upper.slice(mid)] };
+
+  // 3. Single word (or 2-line wrap still overflows): shrink further on one line — never break a word.
+  for (let size = minSize - 1; size >= 6; size -= 1) {
+    ctx.font = `700 ${size}px "${font}", system-ui, sans-serif`;
+    if (ctx.measureText(upper).width <= maxWidth) {
+      return { size, lines: [upper] };
+    }
+  }
+  return { size: 6, lines: [upper] };
 }
 
 function drawTextLogo(
