@@ -77,8 +77,8 @@ function drawTextLogo(
   opts: { text: string; font: string; color: string; scale: number },
 ) {
   const { text, font, color, scale } = opts;
-  const W = 320 * scale;
-  const H = 128 * scale;
+  const W = 256 * scale;
+  const H = 102 * scale;
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
