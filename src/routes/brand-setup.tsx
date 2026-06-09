@@ -563,9 +563,9 @@ function BrandSetupScreen() {
                   <div className="flex justify-center">
                     <canvas
                       ref={previewCanvasRef}
-                      width={320}
-                      height={128}
-                      style={{ width: 320, height: 128 }}
+                      width={256}
+                      height={102}
+                      style={{ width: 256, height: 102 }}
                       className="rounded-lg"
                     />
                   </div>
