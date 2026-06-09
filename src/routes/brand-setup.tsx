@@ -7,11 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Upload, ImageIcon, Sparkles, Check } from "lucide-react";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
 
-const LATIN_FONTS = ["DM Sans", "Playfair Display", "Poppins"] as const;
+const LATIN_FONTS = ["DM Sans", "Playfair Display", "Oswald"] as const;
 const DEVANAGARI_FONTS = ["Tiro Devanagari Hindi", "Rozha One", "Baloo 2"] as const;
-const TEXT_LOGO_COLORS = ["#013375", "#014944", "#6a004a", "#6e001a", "#d7701c"] as const;
+const TEXT_LOGO_COLORS = ["#013375", "#014944", "#6a004a", "#D30000", "#d7701c"] as const;
 const GOOGLE_FONTS_HREF =
-  "https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Playfair+Display:wght@700&family=Poppins:wght@700&family=Tiro+Devanagari+Hindi&family=Rozha+One&family=Baloo+2:wght@700&display=swap";
+  "https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Playfair+Display:wght@700&family=Oswald:wght@700&family=Tiro+Devanagari+Hindi&family=Rozha+One&family=Baloo+2:wght@700&display=swap";
 
 function ensureGoogleFontsLoaded() {
   if (typeof document === "undefined") return;
@@ -37,33 +37,39 @@ function fitText(
   maxWidth: number,
 ): { size: number; lines: string[] } {
   const upper = text.toUpperCase();
+  const words = upper.split(/\s+/).filter(Boolean);
+
+  // 1. Try to fit on a single line from startSize down to minSize.
   for (let size = startSize; size >= minSize; size -= 2) {
     ctx.font = `700 ${size}px "${font}", system-ui, sans-serif`;
     if (ctx.measureText(upper).width <= maxWidth) {
       return { size, lines: [upper] };
     }
   }
-  // wrap to 2 lines at minSize
-  ctx.font = `700 ${minSize}px "${font}", system-ui, sans-serif`;
-  const words = upper.split(/\s+/);
+
+  // 2. Multi-word: wrap to 2 lines at minSize on a word boundary.
   if (words.length > 1) {
-    // find best split point
-    let best: { a: string; b: string } | null = null;
+    ctx.font = `700 ${minSize}px "${font}", system-ui, sans-serif`;
+    let best: { a: string; b: string; worst: number } | null = null;
     for (let i = 1; i < words.length; i++) {
       const a = words.slice(0, i).join(" ");
       const b = words.slice(i).join(" ");
-      const wa = ctx.measureText(a).width;
-      const wb = ctx.measureText(b).width;
-      const worst = Math.max(wa, wb);
-      if (!best || worst < Math.max(ctx.measureText(best.a).width, ctx.measureText(best.b).width)) {
-        best = { a, b };
-      }
+      const worst = Math.max(ctx.measureText(a).width, ctx.measureText(b).width);
+      if (!best || worst < best.worst) best = { a, b, worst };
     }
-    if (best) return { size: minSize, lines: [best.a, best.b] };
+    if (best && best.worst <= maxWidth) {
+      return { size: minSize, lines: [best.a, best.b] };
+    }
   }
-  // character split
-  const mid = Math.ceil(upper.length / 2);
-  return { size: minSize, lines: [upper.slice(0, mid), upper.slice(mid)] };
+
+  // 3. Single word (or 2-line wrap still overflows): shrink further on one line — never break a word.
+  for (let size = minSize - 1; size >= 6; size -= 1) {
+    ctx.font = `700 ${size}px "${font}", system-ui, sans-serif`;
+    if (ctx.measureText(upper).width <= maxWidth) {
+      return { size, lines: [upper] };
+    }
+  }
+  return { size: 6, lines: [upper] };
 }
 
 function drawTextLogo(
@@ -71,8 +77,8 @@ function drawTextLogo(
   opts: { text: string; font: string; color: string; scale: number },
 ) {
   const { text, font, color, scale } = opts;
-  const W = 320 * scale;
-  const H = 128 * scale;
+  const W = 256 * scale;
+  const H = 102 * scale;
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
@@ -557,9 +563,9 @@ function BrandSetupScreen() {
                   <div className="flex justify-center">
                     <canvas
                       ref={previewCanvasRef}
-                      width={320}
-                      height={128}
-                      style={{ width: 320, height: 128 }}
+                      width={256}
+                      height={102}
+                      style={{ width: 256, height: 102 }}
                       className="rounded-lg"
                     />
                   </div>
