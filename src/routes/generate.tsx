@@ -358,14 +358,25 @@ function GenerateScreen() {
               total += 0.299 * sample[i] + 0.587 * sample[i + 1] + 0.114 * sample[i + 2];
             }
             const avgLum = total / pixels;
-            const stampColor = avgLum > 128 ? "rgba(0, 0, 0, 0.55)" : "rgba(255, 255, 255, 0.65)";
-            ctx.font = `500 20px 'DM Sans'`;
-            ctx.fillStyle = stampColor;
-            ctx.textAlign = "left";
+            const textColor = avgLum > 128 ? "rgba(0, 0, 0, 0.85)" : "rgba(255, 255, 255, 0.85)";
+            const pillColor = avgLum > 128 ? "rgba(0, 0, 0, 0.30)" : "rgba(255, 255, 255, 0.20)";
+
+            ctx.save();
             ctx.translate(20, 720);
             ctx.rotate(-Math.PI / 2);
+
+            // Semi-transparent background pill
+            ctx.fillStyle = pillColor;
+            ctx.beginPath();
+            ctx.roundRect(-90, -10, 90, 14, 4);
+            ctx.fill();
+
+            ctx.font = `500 16px 'DM Sans'`;
+            ctx.fillStyle = textColor;
+            ctx.textAlign = "left";
             ctx.fillText("getnavo.in", 0, 0);
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+            ctx.restore();
           } catch (e) {
             // ignore sampling errors (e.g. tainted canvas)
           }
