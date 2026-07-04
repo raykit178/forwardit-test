@@ -3,10 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms of Service — Navo" },
+      { title: "Terms of Service — InstaBrand" },
       {
         name: "description",
-        content: "Navo Terms of Service",
+        content: "InstaBrand Terms of Service",
       },
     ],
   }),
@@ -26,7 +26,7 @@ function TermsPage() {
 
         <header className="mt-8">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Navo
+            InstaBrand
           </h1>
         </header>
 
@@ -45,17 +45,17 @@ function TermsPage() {
               1. Acceptance of terms
             </h3>
             <p className="text-base text-foreground leading-relaxed">
-              By signing up and using Navo, you agree to these Terms of Service.
+              By signing up and using InstaBrand, you agree to these Terms of Service.
               If you do not agree, please do not use the service.
             </p>
           </section>
 
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-foreground">
-              2. What Navo provides
+              2. What InstaBrand provides
             </h3>
             <p className="text-base text-foreground leading-relaxed">
-              Navo is a web application that allows small business owners to
+              InstaBrand is a web application that allows small business owners to
               generate AI-powered branded festival greeting images. You provide
               your brand assets; we generate images using those assets and AI
               services.
@@ -69,7 +69,7 @@ function TermsPage() {
             <p className="text-base text-foreground leading-relaxed">
               You are responsible for maintaining the security of your account.
               You must provide accurate information during sign-up and brand
-              setup. You must be at least 18 years old to use Navo.
+              setup. You must be at least 18 years old to use InstaBrand.
             </p>
           </section>
 
@@ -85,7 +85,7 @@ function TermsPage() {
                 Upload logos or content that you do not have the right to use
               </li>
               <li>
-                Use Navo to generate images that are offensive, misleading, or
+                Use InstaBrand to generate images that are offensive, misleading, or
                 illegal
               </li>
               <li>
@@ -148,7 +148,7 @@ function TermsPage() {
               8. Disclaimers
             </h3>
             <p className="text-base text-foreground leading-relaxed">
-              Navo is provided "as is." AI-generated images may occasionally be
+              InstaBrand is provided "as is." AI-generated images may occasionally be
               imperfect. We do not guarantee that every generated image will meet
               your expectations. We are not liable for any indirect or
               consequential damages arising from use of the service.

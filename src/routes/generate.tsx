@@ -13,7 +13,7 @@ import { GenerateLoadingVisual, GenerateLoadingMicroCopy } from "@/components/ge
 
 export const Route = createFileRoute("/generate")({
   head: () => ({
-    meta: [{ title: "Generate — Navo" }],
+    meta: [{ title: "Generate — InstaBrand" }],
   }),
   component: GenerateScreen,
 });
@@ -93,7 +93,7 @@ function GenerateScreen() {
         const options = {
           key: 'rzp_live_SxPmJquc2kDBSB',
           subscription_id: subscriptionId,
-          name: 'Navo',
+          name: 'InstaBrand',
           description: selectedPlan === 'monthly' ? 'Monthly Plan — ₹499/month' : 'Annual Plan — ₹3,999/year',
           handler: async function (response: any) {
             const { data: { session: s2 } } = await supabase.auth.getSession();
@@ -349,7 +349,7 @@ function GenerateScreen() {
           }
           ctx.textAlign = "left"; // reset
 
-          // getnavo.in vertical stamp on left edge of image area
+          // instabrand.in vertical stamp on left edge of image area
           try {
             const sample = ctx.getImageData(10, 650, 14, 80).data;
             let total = 0;
@@ -374,7 +374,7 @@ function GenerateScreen() {
             ctx.font = `500 16px 'DM Sans'`;
             ctx.fillStyle = textColor;
             ctx.textAlign = "left";
-            ctx.fillText("getnavo.in", 0, 0);
+            ctx.fillText("instabrand.in", 0, 0);
 
             ctx.restore();
           } catch (e) {
@@ -554,7 +554,7 @@ function GenerateScreen() {
             <DialogTitle className="text-lg font-bold text-foreground">
               {paywallContext === "limit"
                 ? `You've used your ${FREE_LIMIT} free images`
-                : "Unlock Navo Pro"}
+                : "Unlock InstaBrand Pro"}
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
               {paywallContext === "limit"
@@ -609,7 +609,7 @@ function GenerateScreen() {
         <DialogContent className="max-w-[360px] rounded-2xl bg-white sm:rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-foreground">
-              Your Navo Pro subscription
+              Your InstaBrand Pro subscription
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
               {subscriptionPlan === "annual"
@@ -640,7 +640,7 @@ function GenerateScreen() {
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
           <div className="flex items-center justify-between px-5 py-4">
             <span className="text-xl font-bold tracking-tight text-primary">
-              Navo
+              InstaBrand
             </span>
             <div className="flex items-center gap-2">
               {isSubscribed ? (

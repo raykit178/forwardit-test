@@ -20,7 +20,7 @@ const HERO_IMAGES = [
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Navo — Greetings with your brand. For every occasion" },
+      { title: "InstaBrand — Greetings with your brand. For every occasion" },
       {
         name: "description",
         content:
@@ -121,7 +121,7 @@ function SignInScreen() {
   return (
     <main className="min-h-[100dvh] bg-background flex flex-col items-center">
       <ImageCarouselHero
-        title="Navo"
+        title="InstaBrand"
         subtitle="Greetings with your brand. For every occasion "
         description="AI-generated branded festival images — in English, Hindi and Marathi. Ready to forward on WhatsApp in 30 seconds."
         ctaText={

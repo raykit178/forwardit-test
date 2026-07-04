@@ -3,10 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — Navo" },
+      { title: "Privacy Policy — InstaBrand" },
       {
         name: "description",
-        content: "Navo Privacy Policy",
+        content: "InstaBrand Privacy Policy",
       },
     ],
   }),
@@ -26,7 +26,7 @@ function PrivacyPage() {
 
         <header className="mt-8">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Navo
+            InstaBrand
           </h1>
         </header>
 
@@ -45,8 +45,8 @@ function PrivacyPage() {
               1. Who we are
             </h3>
             <p className="text-base text-foreground leading-relaxed">
-              Navo ("we", "our", "us") is a web application available at{" "}
-              <span className="font-medium">getnavo.in</span> that helps small
+              InstaBrand ("we", "our", "us") is a web application available at{" "}
+              <span className="font-medium">instabrand.in</span> that helps small
               businesses generate branded festival greeting images. For any
               privacy-related queries, contact us at{" "}
               <span className="font-medium">hello.getnavo@outlook.com</span>.
@@ -86,7 +86,7 @@ function PrivacyPage() {
             </h3>
             <ul className="list-disc pl-5 space-y-2 text-base text-foreground leading-relaxed">
               <li>
-                To provide the Navo service — generating and compositing your
+                To provide the InstaBrand service — generating and compositing your
                 branded images
               </li>
               <li>To manage your account and subscription</li>
@@ -103,7 +103,7 @@ function PrivacyPage() {
             </h3>
             <p className="text-base text-foreground leading-relaxed">
               We do not sell your data. We share it only with the services that
-              power Navo:
+              power InstaBrand:
             </p>
             <ul className="list-disc pl-5 space-y-2 text-base text-foreground leading-relaxed">
               <li>
@@ -155,7 +155,7 @@ function PrivacyPage() {
               7. Cookies
             </h3>
             <p className="text-base text-foreground leading-relaxed">
-              Navo uses only essential cookies required for authentication. We
+              InstaBrand uses only essential cookies required for authentication. We
               do not use advertising or tracking cookies.
             </p>
           </section>

@@ -151,7 +151,7 @@ const EXTRA_INFO_MAX = 56;
 
 export const Route = createFileRoute("/brand-setup")({
   head: () => ({
-    meta: [{ title: "Set up your brand — Navo" }],
+    meta: [{ title: "Set up your brand — InstaBrand" }],
   }),
   component: BrandSetupScreen,
 });
