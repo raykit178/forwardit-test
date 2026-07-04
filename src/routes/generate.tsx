@@ -351,35 +351,49 @@ function GenerateScreen() {
 
           // instabrand.in vertical stamp on left edge of image area
           try {
-            const sample = ctx.getImageData(10, 650, 14, 80).data;
+            // 1. Set font first
+            ctx.font = `500 16px 'DM Sans'`;
+
+            // 2. Sample pixel region directly behind the pill (x=10, y=650, 14×90)
+            const sample = ctx.getImageData(10, 650, 14, 90).data;
             let total = 0;
             const pixels = sample.length / 4;
             for (let i = 0; i < sample.length; i += 4) {
               total += 0.299 * sample[i] + 0.587 * sample[i + 1] + 0.114 * sample[i + 2];
             }
             const avgLum = total / pixels;
-            const textColor = avgLum > 128 ? "rgba(0, 0, 0, 0.95)" : "rgba(255, 255, 255, 0.95)";
-            const pillColor = avgLum > 128 ? "rgba(0, 0, 0, 0.45)" : "rgba(255, 255, 255, 0.35)";
 
+            // 3. Choose colours: light bg → dark pill + light text; dark bg → light pill + dark text
+            const isLight = avgLum > 150;
+            const pillColor = isLight ? "rgba(0, 0, 0, 0.45)" : "rgba(255, 255, 255, 0.35)";
+            const textColor = isLight ? "rgba(255, 255, 255, 0.95)" : "rgba(0, 0, 0, 0.85)";
+
+            // 4. Measure text dimensions
+            const metrics = ctx.measureText("instabrand.in");
+            const textWidth = metrics.width;
+            const textHeight =
+              (metrics.actualBoundingBoxAscent || 0) +
+              (metrics.actualBoundingBoxDescent || 0);
+            const ascent = metrics.actualBoundingBoxAscent || 0;
+
+            // 5. Save context, translate, rotate
             ctx.save();
-            ctx.translate(12, 720);
+            ctx.translate(14, 720);
             ctx.rotate(-Math.PI / 2);
 
-            // Measure text width first so the pill fits the actual text
-            ctx.font = `500 16px 'DM Sans'`;
-            const stampText = "instabrand.in";
-            const measuredWidth = ctx.measureText(stampText).width;
-
-            // Background pill sized to measured text width with even padding on all sides
+            // 6. Draw pill centered on text baseline
             ctx.fillStyle = pillColor;
             ctx.beginPath();
-            ctx.roundRect(-4, -20, measuredWidth + 12, 26, 4);
+            ctx.roundRect(-6, -(ascent + 6), textWidth + 12, textHeight + 12, 4);
             ctx.fill();
 
+            // 7. Draw text at (0, 0), left-aligned, alphabetic baseline
             ctx.fillStyle = textColor;
             ctx.textAlign = "left";
-            ctx.fillText(stampText, 6, 0);
+            ctx.textBaseline = "alphabetic";
+            ctx.fillText("instabrand.in", 0, 0);
 
+            // 8. Restore context
             ctx.restore();
           } catch (e) {
             // ignore sampling errors (e.g. tainted canvas)
