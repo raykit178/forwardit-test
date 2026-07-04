@@ -49,7 +49,7 @@ function PrivacyPage() {
               <span className="font-medium">instabrand.in</span> that helps small
               businesses generate branded festival greeting images. For any
               privacy-related queries, contact us at{" "}
-              <span className="font-medium">hello.getnavo@outlook.com</span>.
+              <span className="font-medium">hello.instabrand@gmail.com</span>.
             </p>
           </section>
 
@@ -134,7 +134,7 @@ function PrivacyPage() {
               account is active. Generated image records are retained for up to
               12 months. You can request deletion of your data at any time by
               emailing{" "}
-              <span className="font-medium">hello.getnavo@outlook.com</span>.
+              <span className="font-medium">hello.instabrand@gmail.com</span>.
             </p>
           </section>
 
@@ -145,7 +145,7 @@ function PrivacyPage() {
             <p className="text-base text-foreground leading-relaxed">
               You have the right to access, correct, or delete your personal
               data. To exercise any of these rights, email us at{" "}
-              <span className="font-medium">hello.getnavo@outlook.com</span> and
+              <span className="font-medium">hello.instabrand@gmail.com</span> and
               we will respond within 30 days.
             </p>
           </section>
@@ -173,7 +173,7 @@ function PrivacyPage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-foreground">9. Contact</h3>
             <p className="text-base text-foreground leading-relaxed">
-              <span className="font-medium">hello.getnavo@outlook.com</span>
+              <span className="font-medium">hello.instabrand@gmail.com</span>
             </p>
           </section>
         </div>

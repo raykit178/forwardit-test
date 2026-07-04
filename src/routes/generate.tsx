@@ -618,7 +618,7 @@ function GenerateScreen() {
             </DialogDescription>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            To cancel your subscription, contact us at hello.getnavo@outlook.com
+            To cancel your subscription, contact us at hello.instabrand@gmail.com
           </p>
           <DialogFooter className="flex flex-col gap-2 sm:flex-col sm:space-x-0">
             <Button

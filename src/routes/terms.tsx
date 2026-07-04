@@ -128,7 +128,7 @@ function TermsPage() {
               You may cancel your subscription at any time from your account. We
               do not offer refunds for partial billing periods. If you believe
               you have been charged in error, contact us at{" "}
-              <span className="font-medium">hello.getnavo@outlook.com</span>.
+              <span className="font-medium">hello.instabrand@gmail.com</span>.
             </p>
           </section>
 
@@ -168,7 +168,7 @@ function TermsPage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-foreground">10. Contact</h3>
             <p className="text-base text-foreground leading-relaxed">
-              <span className="font-medium">hello.getnavo@outlook.com</span>
+              <span className="font-medium">hello.instabrand@gmail.com</span>
             </p>
           </section>
         </div>
