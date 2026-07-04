@@ -358,11 +358,11 @@ function GenerateScreen() {
               total += 0.299 * sample[i] + 0.587 * sample[i + 1] + 0.114 * sample[i + 2];
             }
             const avgLum = total / pixels;
-            const textColor = avgLum > 128 ? "rgba(0, 0, 0, 0.85)" : "rgba(255, 255, 255, 0.85)";
-            const pillColor = avgLum > 128 ? "rgba(0, 0, 0, 0.30)" : "rgba(255, 255, 255, 0.20)";
+            const textColor = avgLum > 128 ? "rgba(0, 0, 0, 0.95)" : "rgba(255, 255, 255, 0.95)";
+            const pillColor = avgLum > 128 ? "rgba(0, 0, 0, 0.45)" : "rgba(255, 255, 255, 0.35)";
 
             ctx.save();
-            ctx.translate(20, 720);
+            ctx.translate(12, 720);
             ctx.rotate(-Math.PI / 2);
 
             // Measure text width first so the pill fits the actual text
@@ -370,10 +370,10 @@ function GenerateScreen() {
             const stampText = "instabrand.in";
             const measuredWidth = ctx.measureText(stampText).width;
 
-            // Background pill sized to measured text width + small padding
+            // Background pill sized to measured text width with even padding on all sides
             ctx.fillStyle = pillColor;
             ctx.beginPath();
-            ctx.roundRect(0, -18, measuredWidth + 12, 22, 4);
+            ctx.roundRect(-4, -20, measuredWidth + 12, 26, 4);
             ctx.fill();
 
             ctx.fillStyle = textColor;
