@@ -365,16 +365,20 @@ function GenerateScreen() {
             ctx.translate(20, 720);
             ctx.rotate(-Math.PI / 2);
 
-            // Semi-transparent background pill
+            // Measure text width first so the pill fits the actual text
+            ctx.font = `500 16px 'DM Sans'`;
+            const stampText = "instabrand.in";
+            const measuredWidth = ctx.measureText(stampText).width;
+
+            // Background pill sized to measured text width + small padding
             ctx.fillStyle = pillColor;
             ctx.beginPath();
-            ctx.roundRect(-90, -10, 90, 14, 4);
+            ctx.roundRect(0, -18, measuredWidth + 12, 22, 4);
             ctx.fill();
 
-            ctx.font = `500 16px 'DM Sans'`;
             ctx.fillStyle = textColor;
             ctx.textAlign = "left";
-            ctx.fillText("instabrand.in", 0, 0);
+            ctx.fillText(stampText, 6, 0);
 
             ctx.restore();
           } catch (e) {
