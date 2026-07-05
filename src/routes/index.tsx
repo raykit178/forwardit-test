@@ -173,6 +173,8 @@ function SignInScreen() {
             >
               ← Back
             </button>
+          ) : mode === "buttons" ? (
+            <PasswordSignIn />
           ) : null
         }
         images={HERO_IMAGES}
