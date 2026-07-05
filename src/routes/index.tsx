@@ -243,8 +243,9 @@ function SignInScreen() {
             </div>
           </section>
 
-          <div className="mt-10 flex justify-center">
+          <div className="mt-10 flex flex-col items-center gap-6">
             <EmailSignup />
+            <PasswordSignIn />
           </div>
 
           <p className="mt-8 text-center text-xs text-muted-foreground leading-relaxed px-4">
@@ -346,6 +347,79 @@ function EmailSignup() {
         </button>
       )}
     </div>
+  );
+}
+
+// TEMPORARY: password sign-in for third-party review. Remove when review is complete.
+function PasswordSignIn() {
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    setSubmitting(true);
+    setError(null);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setSubmitting(false);
+    if (error) setError(error.message);
+  };
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="text-xs text-muted-foreground underline hover:text-foreground"
+      >
+        Sign in with password
+      </button>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-2">
+      <div className="text-xs font-medium text-muted-foreground text-center">
+        Sign in with password
+      </div>
+      <Input
+        type="email"
+        placeholder="you@business.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="h-12 rounded-xl text-base"
+        autoComplete="email"
+      />
+      <Input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="h-12 rounded-xl text-base"
+        autoComplete="current-password"
+      />
+      {error && <p className="text-xs text-destructive px-1">{error}</p>}
+      <button
+        type="submit"
+        disabled={submitting || !email || !password}
+        className="mt-1 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-base font-medium text-primary-foreground shadow-lg disabled:opacity-60"
+      >
+        {submitting ? "Signing in…" : "Sign in"}
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(false);
+          setError(null);
+        }}
+        className="mt-1 text-xs text-muted-foreground hover:text-foreground"
+      >
+        ← Back
+      </button>
+    </form>
   );
 }
 
