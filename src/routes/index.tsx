@@ -173,6 +173,8 @@ function SignInScreen() {
             >
               ← Back
             </button>
+          ) : mode === "buttons" ? (
+            <PasswordSignIn />
           ) : null
         }
         images={HERO_IMAGES}
@@ -245,8 +247,8 @@ function SignInScreen() {
 
           <div className="mt-10 flex flex-col items-center gap-6">
             <EmailSignup />
-            <PasswordSignIn />
           </div>
+
 
           <p className="mt-8 text-center text-xs text-muted-foreground leading-relaxed px-4">
             By continuing, you agree to our{" "}
@@ -373,9 +375,10 @@ function PasswordSignIn() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-xs text-muted-foreground underline hover:text-foreground"
+        className="group inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-6 text-base font-medium text-primary-foreground shadow-lg transition-transform hover:-translate-y-0.5 active:translate-y-0"
       >
         Sign in with password
+        <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
       </button>
     );
   }
