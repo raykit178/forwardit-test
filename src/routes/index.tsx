@@ -188,7 +188,7 @@ function SignInScreen() {
             {[
               { title: "Every festival, every time", description: "Never miss an occasion. A fresh image with your banding for every occasion." },
               { title: "Your brand, not a template", description: "Every image is generated from scratch using your logo, colours and contact number." },
-              { title: "4 styles, 3 languages", description: "Vibrant, Minimal, Elegant or Word Art. In English, Hindi or Marathi." },
+              { title: "4 styles, 3 languages", description: "Vibrant, Minimal, Elegant or Word Art. In English, Hindi or Marathi.\u00a0" },
             ].map((feature, index) => (
               <div
                 key={index}
