@@ -373,6 +373,11 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
   };
 
   const handleSubmit = async () => {
+    if (mockProfile) {
+      window.alert("DEV PREVIEW — nothing saved.");
+      return;
+    }
+
     setSaving(true);
     setError(null);
     try {
