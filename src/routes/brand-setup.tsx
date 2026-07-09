@@ -481,7 +481,7 @@ function BrandSetupScreen() {
                 </span>
               </div>
 
-              </div>
+
               <Upload className="ml-auto size-4 text-muted-foreground" />
             </button>
 
