@@ -3,6 +3,13 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, ImageIcon, Sparkles, Check } from "lucide-react";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
@@ -197,6 +204,7 @@ function BrandSetupScreen() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [businessName, setBusinessName] = useState("");
+  const [businessType, setBusinessType] = useState<string>("");
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [brandColor, setBrandColor] = useState<string>("");
@@ -303,12 +311,13 @@ function BrandSetupScreen() {
       }
       const { data: profile } = await supabase
         .from("profiles")
-        .select("business_name, logo_url, brand_colour, contact_number, extra_info")
+        .select("business_name, business_type, logo_url, brand_colour, contact_number, extra_info")
         .eq("user_id", data.session.user.id)
         .maybeSingle();
       if (profile) {
         setIsEditing(true);
         if (profile.business_name) setBusinessName(profile.business_name);
+        if (profile.business_type) setBusinessType(profile.business_type);
         if (profile.brand_colour) setBrandColor(profile.brand_colour);
         if (profile.contact_number) setContactNumber(profile.contact_number);
         if (profile.extra_info) setExtraInfo(profile.extra_info);
@@ -399,6 +408,7 @@ function BrandSetupScreen() {
       const { error: insErr } = await supabase.from("profiles").upsert({
         user_id: user.id,
         business_name: businessName,
+        business_type: businessType.trim() ? businessType.trim() : null,
         logo_url,
         brand_colour: brandColor,
         contact_number: contactNumber,
@@ -444,6 +454,29 @@ function BrandSetupScreen() {
               onChange={(e) => setBusinessName(e.target.value)}
               className="h-12 rounded-xl text-base"
             />
+          </div>
+
+          {/* Business type */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="business-type" className="text-sm font-medium">
+              Business type
+            </Label>
+            <Select value={businessType} onValueChange={setBusinessType}>
+              <SelectTrigger id="business-type" className="h-12 rounded-xl text-base">
+                <SelectValue placeholder="Select your business type (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Retail Shop">Retail Shop</SelectItem>
+                <SelectItem value="Restaurant / Food & Beverage">Restaurant / Food & Beverage</SelectItem>
+                <SelectItem value="Salon / Beauty">Salon / Beauty</SelectItem>
+                <SelectItem value="Clinic / Healthcare">Clinic / Healthcare</SelectItem>
+                <SelectItem value="Real Estate">Real Estate</SelectItem>
+                <SelectItem value="Coaching / Tutoring">Coaching / Tutoring</SelectItem>
+                <SelectItem value="Electronics / Mobile">Electronics / Mobile</SelectItem>
+                <SelectItem value="Clothing / Fashion">Clothing / Fashion</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Logo upload */}
