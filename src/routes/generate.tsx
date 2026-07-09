@@ -176,7 +176,7 @@ function GenerateScreen() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("business_name, logo_url, brand_colour, contact_number, extra_info, subscription_status, subscription_plan")
+        .select("business_name, logo_url, brand_colour, contact_number, extra_info, brand_bar_style, subscription_status, subscription_plan")
         .eq("user_id", user.id)
         .maybeSingle();
       if (!profile) {
@@ -189,6 +189,7 @@ function GenerateScreen() {
         brandColor: profile.brand_colour,
         contactNumber: profile.contact_number ?? "",
         extraInfo: profile.extra_info ?? null,
+        brandBarStyle: (profile.brand_bar_style === "style_1" ? "style_1" : "style_2"),
       });
       const isActive = profile.subscription_status === "active";
       setSubscriptionStatus(isActive ? "active" : "free");
