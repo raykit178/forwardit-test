@@ -270,31 +270,76 @@ function GenerateScreen() {
       aiImg.onload = () => {
         ctx.drawImage(aiImg, 0, 0, 1024, 1024);
 
-        // Brand bar background
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, brandBarTop, 1024, brandBarHeight);
+        // Shared: instabrand.in vertical stamp on left edge of image area
+        const drawStamp = () => {
+          try {
+            ctx.font = `500 16px 'DM Sans'`;
+            const sample = ctx.getImageData(10, 650, 14, 90).data;
+            let total = 0;
+            const pixels = sample.length / 4;
+            for (let i = 0; i < sample.length; i += 4) {
+              total += 0.299 * sample[i] + 0.587 * sample[i + 1] + 0.114 * sample[i + 2];
+            }
+            const avgLum = total / pixels;
+            const isLight = avgLum > 150;
+            const pillColor = isLight ? "rgba(0, 0, 0, 0.45)" : "rgba(255, 255, 255, 0.35)";
+            const textColor = isLight ? "rgba(255, 255, 255, 0.95)" : "rgba(0, 0, 0, 0.85)";
+            const metrics = ctx.measureText("instabrand.in");
+            const textWidth = metrics.width;
+            const textHeight =
+              (metrics.actualBoundingBoxAscent || 0) +
+              (metrics.actualBoundingBoxDescent || 0);
+            const ascent = metrics.actualBoundingBoxAscent || 0;
+            ctx.save();
+            ctx.translate(14, 720);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = pillColor;
+            ctx.beginPath();
+            ctx.roundRect(-6, -(ascent + 6), textWidth + 12, textHeight + 12, 4);
+            ctx.fill();
+            ctx.fillStyle = textColor;
+            ctx.textAlign = "left";
+            ctx.textBaseline = "alphabetic";
+            ctx.fillText("instabrand.in", 0, 0);
+            ctx.restore();
+          } catch {
+            /* tainted canvas */
+          }
+        };
 
-        // 8px top stroke in brand colour
-        ctx.fillStyle = brand.brandColor || "#006AFF";
-        ctx.fillRect(0, brandBarTop, 1024, 8);
+        // ============ STYLE 2 (existing layout) ============
+        const renderStyle2 = (logoImg: HTMLImageElement | null) => {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, brandBarTop, 1024, brandBarHeight);
+          ctx.fillStyle = brand.brandColor || "#006AFF";
+          ctx.fillRect(0, brandBarTop, 1024, 8);
 
-        const drawText = (_logoDrawnWidth: number) => {
-          const rightColLeft = Math.round(1024 * 0.55); // 562
+          if (logoImg) {
+            const bounds = getContentBounds(logoImg);
+            const maxLogoHeight = 190;
+            const maxLogoWidth = 320;
+            const scale = Math.min(maxLogoHeight / bounds.h, maxLogoWidth / bounds.w);
+            const logoW = bounds.w * scale;
+            const logoH = bounds.h * scale;
+            const logoX = 32;
+            const logoY = brandBarTop + 4 + (brandBarHeight - 4) / 2 - logoH / 2;
+            ctx.drawImage(logoImg, bounds.x, bounds.y, bounds.w, bounds.h, logoX, logoY, logoW, logoH);
+          }
+
+          const rightColLeft = Math.round(1024 * 0.55);
           const rightColPadL = 24;
           const rightColPadR = 24;
-          const rightColInnerLeft = rightColLeft + rightColPadL; // 586
-          const rightColInnerRight = 1024 - rightColPadR; // 1000
-          const rightColInnerWidth = rightColInnerRight - rightColInnerLeft; // 414
+          const rightColInnerLeft = rightColLeft + rightColPadL;
+          const rightColInnerRight = 1024 - rightColPadR;
+          const rightColInnerWidth = rightColInnerRight - rightColInnerLeft;
           const extra = (brand.extraInfo ?? "").trim();
 
           ctx.textBaseline = "middle";
 
           if (extra) {
-            // --- Extra info: wrap to max 2 lines ---
             ctx.font = `400 26px 'Noto Sans', 'Noto Sans Devanagari', sans-serif`;
             ctx.fillStyle = "#333333";
             ctx.textAlign = "left";
-
             const words = extra.split(/\s+/);
             const lines: string[] = [];
             let current = "";
@@ -309,13 +354,11 @@ function GenerateScreen() {
               }
             }
             if (current && lines.length < 2) lines.push(current);
-            // If we broke early due to 2-line cap, append remaining words to line 2
             if (lines.length === 2) {
               const consumed = lines.join(" ").split(/\s+/).length;
               const rest = words.slice(consumed).join(" ");
               if (rest) lines[1] = lines[1] + " " + rest;
             }
-
             const dividerY = brandBarTop + 128;
             const lineHeight = 34;
             const prevBaseline = ctx.textBaseline;
@@ -324,12 +367,8 @@ function GenerateScreen() {
             lines.forEach((ln, i) => {
               ctx.fillText(ln, rightColInnerLeft, firstY + i * lineHeight);
             });
-
-            // --- Divider ---
             ctx.fillStyle = "#BBBBBB";
             ctx.fillRect(rightColInnerLeft, dividerY - 0.75, rightColInnerWidth, 1.5);
-
-            // --- Phone number, lower half ---
             ctx.font = `600 36px DM Sans, sans-serif`;
             ctx.fillStyle = "#222222";
             ctx.textAlign = "left";
@@ -338,7 +377,6 @@ function GenerateScreen() {
             ctx.fillText(phoneText, rightColInnerLeft, phoneY);
             ctx.textBaseline = prevBaseline;
           } else {
-            // Original: phone number right-aligned, vertically centred
             ctx.font = `600 36px DM Sans, sans-serif`;
             ctx.fillStyle = "#222222";
             const phoneText = "✆  " + brand.contactNumber;
@@ -348,84 +386,166 @@ function GenerateScreen() {
             ctx.textAlign = "right";
             ctx.fillText(phoneText, textX, textY);
           }
-          ctx.textAlign = "left"; // reset
+          ctx.textAlign = "left";
 
-          // instabrand.in vertical stamp on left edge of image area
-          try {
-            // 1. Set font first
-            ctx.font = `500 16px 'DM Sans'`;
-
-            // 2. Sample pixel region directly behind the pill (x=10, y=650, 14×90)
-            const sample = ctx.getImageData(10, 650, 14, 90).data;
-            let total = 0;
-            const pixels = sample.length / 4;
-            for (let i = 0; i < sample.length; i += 4) {
-              total += 0.299 * sample[i] + 0.587 * sample[i + 1] + 0.114 * sample[i + 2];
-            }
-            const avgLum = total / pixels;
-
-            // 3. Choose colours: light bg → dark pill + light text; dark bg → light pill + dark text
-            const isLight = avgLum > 150;
-            const pillColor = isLight ? "rgba(0, 0, 0, 0.45)" : "rgba(255, 255, 255, 0.35)";
-            const textColor = isLight ? "rgba(255, 255, 255, 0.95)" : "rgba(0, 0, 0, 0.85)";
-
-            // 4. Measure text dimensions
-            const metrics = ctx.measureText("instabrand.in");
-            const textWidth = metrics.width;
-            const textHeight =
-              (metrics.actualBoundingBoxAscent || 0) +
-              (metrics.actualBoundingBoxDescent || 0);
-            const ascent = metrics.actualBoundingBoxAscent || 0;
-
-            // 5. Save context, translate, rotate
-            ctx.save();
-            ctx.translate(14, 720);
-            ctx.rotate(-Math.PI / 2);
-
-            // 6. Draw pill centered on text baseline
-            ctx.fillStyle = pillColor;
-            ctx.beginPath();
-            ctx.roundRect(-6, -(ascent + 6), textWidth + 12, textHeight + 12, 4);
-            ctx.fill();
-
-            // 7. Draw text at (0, 0), left-aligned, alphabetic baseline
-            ctx.fillStyle = textColor;
-            ctx.textAlign = "left";
-            ctx.textBaseline = "alphabetic";
-            ctx.fillText("instabrand.in", 0, 0);
-
-            // 8. Restore context
-            ctx.restore();
-          } catch (e) {
-            // ignore sampling errors (e.g. tainted canvas)
-          }
-
+          drawStamp();
           resolve(canvas.toDataURL("image/png"));
         };
+
+        // ============ STYLE 1 (new layout) ============
+        const renderStyle1 = (logoImg: HTMLImageElement | null) => {
+          // Brand bar white background
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, brandBarTop, 1024, brandBarHeight);
+          // Top accent stroke in brand colour
+          const accentColor = brand.brandColor || "#006AFF";
+          ctx.fillStyle = accentColor;
+          ctx.fillRect(0, brandBarTop, 1024, 8);
+
+          // Container: bottom-aligned with bar, extends above brand bar top
+          const containerW = 280;
+          const containerH = 320; // 64px above brand bar top
+          const containerX = 32;
+          const containerY = 1024 - containerH; // bottom of canvas
+          const radius = 20;
+
+          // Drop shadow
+          ctx.save();
+          ctx.shadowColor = "rgba(0, 0, 0, 0.22)";
+          ctx.shadowBlur = 18;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 6;
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath();
+          // Rounded top corners only
+          ctx.moveTo(containerX, containerY + containerH);
+          ctx.lineTo(containerX, containerY + radius);
+          ctx.quadraticCurveTo(containerX, containerY, containerX + radius, containerY);
+          ctx.lineTo(containerX + containerW - radius, containerY);
+          ctx.quadraticCurveTo(containerX + containerW, containerY, containerX + containerW, containerY + radius);
+          ctx.lineTo(containerX + containerW, containerY + containerH);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+
+          // Draw image inside container (cover-fit), clipped to rounded-top shape
+          if (logoImg) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(containerX, containerY + containerH);
+            ctx.lineTo(containerX, containerY + radius);
+            ctx.quadraticCurveTo(containerX, containerY, containerX + radius, containerY);
+            ctx.lineTo(containerX + containerW - radius, containerY);
+            ctx.quadraticCurveTo(containerX + containerW, containerY, containerX + containerW, containerY + radius);
+            ctx.lineTo(containerX + containerW, containerY + containerH);
+            ctx.closePath();
+            ctx.clip();
+
+            const iw = logoImg.width;
+            const ih = logoImg.height;
+            const scale = Math.max(containerW / iw, containerH / ih);
+            const dw = iw * scale;
+            const dh = ih * scale;
+            const dx = containerX + (containerW - dw) / 2;
+            const dy = containerY + (containerH - dh) / 2;
+            ctx.drawImage(logoImg, dx, dy, dw, dh);
+            ctx.restore();
+          }
+
+          // Right column — shifted left to accommodate longer text
+          const rightColLeft = containerX + containerW + 24; // 336
+          const rightColRight = 1024 - 28;
+          const rightColWidth = rightColRight - rightColLeft;
+
+          ctx.textAlign = "left";
+          ctx.textBaseline = "top";
+
+          // Block Y positions (tight/compact)
+          const nameY = brandBarTop + 26;
+          // Business name — bold, largest, ALL CAPS
+          ctx.font = `700 40px DM Sans, sans-serif`;
+          ctx.fillStyle = "#111111";
+          const nameText = (brand.businessName || "").toUpperCase();
+          // Truncate if overflows
+          let displayName = nameText;
+          if (ctx.measureText(displayName).width > rightColWidth) {
+            while (displayName.length > 1 && ctx.measureText(displayName + "…").width > rightColWidth) {
+              displayName = displayName.slice(0, -1);
+            }
+            displayName = displayName + "…";
+          }
+          ctx.fillText(displayName, rightColLeft, nameY);
+
+          // extra_info / address — up to 2 lines, smaller regular, tight
+          const extra = (brand.extraInfo ?? "").trim();
+          const infoTop = nameY + 48; // tight below name
+          const infoLineHeight = 26;
+          let infoBottom = infoTop;
+          if (extra) {
+            ctx.font = `400 22px 'Noto Sans', 'Noto Sans Devanagari', sans-serif`;
+            ctx.fillStyle = "#444444";
+            const words = extra.split(/\s+/);
+            const lines: string[] = [];
+            let current = "";
+            for (const w of words) {
+              const test = current ? current + " " + w : w;
+              if (ctx.measureText(test).width <= rightColWidth || !current) {
+                current = test;
+              } else {
+                lines.push(current);
+                current = w;
+                if (lines.length === 1) break;
+              }
+            }
+            if (current && lines.length < 2) lines.push(current);
+            if (lines.length === 2) {
+              const consumed = lines.join(" ").split(/\s+/).length;
+              const rest = words.slice(consumed).join(" ");
+              if (rest) {
+                let l2 = lines[1] + (rest ? " " + rest : "");
+                if (ctx.measureText(l2).width > rightColWidth) {
+                  while (l2.length > 1 && ctx.measureText(l2 + "…").width > rightColWidth) {
+                    l2 = l2.slice(0, -1);
+                  }
+                  l2 = l2 + "…";
+                }
+                lines[1] = l2;
+              }
+            }
+            lines.forEach((ln, i) => {
+              ctx.fillText(ln, rightColLeft, infoTop + i * infoLineHeight);
+            });
+            infoBottom = infoTop + lines.length * infoLineHeight;
+          }
+
+          // Divider — thin, full width of text column, tight below info
+          const dividerY = infoBottom + 12;
+          ctx.fillStyle = "#CCCCCC";
+          ctx.fillRect(rightColLeft, dividerY, rightColWidth, 1.25);
+
+          // Phone with icon — bold, tight below divider
+          const phoneY = dividerY + 14;
+          ctx.font = `700 32px DM Sans, sans-serif`;
+          ctx.fillStyle = "#111111";
+          ctx.fillText("✆  " + brand.contactNumber, rightColLeft, phoneY);
+
+          ctx.textBaseline = "alphabetic";
+          ctx.textAlign = "left";
+
+          drawStamp();
+          resolve(canvas.toDataURL("image/png"));
+        };
+
+        const render = brand.brandBarStyle === "style_1" ? renderStyle1 : renderStyle2;
 
         if (brand.logoDataUrl) {
           const logoImg = new Image();
           logoImg.crossOrigin = "anonymous";
-          logoImg.onload = () => {
-            const bounds = getContentBounds(logoImg);
-            const maxLogoHeight = 190;
-            const maxLogoWidth = 320;
-            const scale = Math.min(maxLogoHeight / bounds.h, maxLogoWidth / bounds.w);
-            const logoW = bounds.w * scale;
-            const logoH = bounds.h * scale;
-            const logoX = 32;
-            const logoY = brandBarTop + 4 + (brandBarHeight - 4) / 2 - logoH / 2;
-            ctx.drawImage(
-              logoImg,
-              bounds.x, bounds.y, bounds.w, bounds.h,
-              logoX, logoY, logoW, logoH
-            );
-            drawText(logoW);
-          };
-          logoImg.onerror = () => drawText(0);
+          logoImg.onload = () => render(logoImg);
+          logoImg.onerror = () => render(null);
           logoImg.src = brand.logoDataUrl;
         } else {
-          drawText(0);
+          render(null);
         }
       };
       aiImg.onerror = reject;
