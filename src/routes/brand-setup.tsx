@@ -200,9 +200,17 @@ function extractDominantColor(img: HTMLImageElement): string {
   return `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }
 
-function BrandSetupScreen() {
+export interface MockProfile {
+  business_name: string;
+  business_type: string | null;
+  logo_url: string | null;
+  brand_colour: string;
+}
+
+export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } = {}) {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState<string>("");
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
@@ -304,6 +312,17 @@ function BrandSetupScreen() {
   };
 
   useEffect(() => {
+    if (mockProfile) {
+      setIsEditing(true);
+      if (mockProfile.business_name) setBusinessName(mockProfile.business_name);
+      if (mockProfile.business_type) setBusinessType(mockProfile.business_type);
+      if (mockProfile.brand_colour) setBrandColor(mockProfile.brand_colour);
+      if (mockProfile.logo_url) {
+        setLogoDataUrl(mockProfile.logo_url);
+        setSavedLogoUrl(mockProfile.logo_url);
+      }
+      return;
+    }
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) {
         navigate({ to: "/" });
@@ -327,7 +346,8 @@ function BrandSetupScreen() {
         }
       }
     });
-  }, [navigate]);
+  }, [navigate, mockProfile]);
+
 
   const hasLogo = logoFile !== null || (isEditing && savedLogoUrl !== null);
   const canSubmit =
@@ -353,6 +373,11 @@ function BrandSetupScreen() {
   };
 
   const handleSubmit = async () => {
+    if (mockProfile) {
+      window.alert("DEV PREVIEW — nothing saved.");
+      return;
+    }
+
     setSaving(true);
     setError(null);
     try {
