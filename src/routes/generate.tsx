@@ -33,7 +33,7 @@ const STEPS = [
   { label: "Adding your brand" },
 ];
 
-type Brand = { businessName: string; logoDataUrl: string | null; brandColor: string; contactNumber: string; extraInfo: string | null };
+type Brand = { businessName: string; logoDataUrl: string | null; brandColor: string; contactNumber: string; extraInfo: string | null; brandBarStyle: "style_1" | "style_2" };
 type Phase = "idle" | "loading" | "result" | "error";
 
 const FREE_LIMIT = 3;
