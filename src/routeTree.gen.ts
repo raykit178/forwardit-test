@@ -14,6 +14,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as GenerateRouteImport } from './routes/generate'
 import { Route as BrandSetupRouteImport } from './routes/brand-setup'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DevPreviewGenerateRouteImport } from './routes/dev-preview.generate'
 import { Route as DevPreviewBrandSetupRouteImport } from './routes/dev-preview.brand-setup'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevPreviewGenerateRoute = DevPreviewGenerateRouteImport.update({
+  id: '/dev-preview/generate',
+  path: '/dev-preview/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DevPreviewBrandSetupRoute = DevPreviewBrandSetupRouteImport.update({
   id: '/dev-preview/brand-setup',
   path: '/dev-preview/brand-setup',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev-preview/brand-setup': typeof DevPreviewBrandSetupRoute
+  '/dev-preview/generate': typeof DevPreviewGenerateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev-preview/brand-setup': typeof DevPreviewBrandSetupRoute
+  '/dev-preview/generate': typeof DevPreviewGenerateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev-preview/brand-setup': typeof DevPreviewBrandSetupRoute
+  '/dev-preview/generate': typeof DevPreviewGenerateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/auth/callback'
     | '/dev-preview/brand-setup'
+    | '/dev-preview/generate'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/auth/callback'
     | '/dev-preview/brand-setup'
+    | '/dev-preview/generate'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/auth/callback'
     | '/dev-preview/brand-setup'
+    | '/dev-preview/generate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   DevPreviewBrandSetupRoute: typeof DevPreviewBrandSetupRoute
+  DevPreviewGenerateRoute: typeof DevPreviewGenerateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dev-preview/generate': {
+      id: '/dev-preview/generate'
+      path: '/dev-preview/generate'
+      fullPath: '/dev-preview/generate'
+      preLoaderRoute: typeof DevPreviewGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dev-preview/brand-setup': {
       id: '/dev-preview/brand-setup'
       path: '/dev-preview/brand-setup'
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   DevPreviewBrandSetupRoute: DevPreviewBrandSetupRoute,
+  DevPreviewGenerateRoute: DevPreviewGenerateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
