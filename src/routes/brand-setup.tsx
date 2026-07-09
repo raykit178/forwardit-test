@@ -204,6 +204,7 @@ function BrandSetupScreen() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [businessName, setBusinessName] = useState("");
+  const [businessType, setBusinessType] = useState<string>("");
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [brandColor, setBrandColor] = useState<string>("");
