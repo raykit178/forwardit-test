@@ -312,6 +312,17 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
   };
 
   useEffect(() => {
+    if (mockProfile) {
+      setIsEditing(true);
+      if (mockProfile.business_name) setBusinessName(mockProfile.business_name);
+      if (mockProfile.business_type) setBusinessType(mockProfile.business_type);
+      if (mockProfile.brand_colour) setBrandColor(mockProfile.brand_colour);
+      if (mockProfile.logo_url) {
+        setLogoDataUrl(mockProfile.logo_url);
+        setSavedLogoUrl(mockProfile.logo_url);
+      }
+      return;
+    }
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) {
         navigate({ to: "/" });
@@ -335,7 +346,8 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
         }
       }
     });
-  }, [navigate]);
+  }, [navigate, mockProfile]);
+
 
   const hasLogo = logoFile !== null || (isEditing && savedLogoUrl !== null);
   const canSubmit =
