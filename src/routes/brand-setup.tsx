@@ -448,7 +448,7 @@ function BrandSetupScreen() {
 
           {/* Logo upload */}
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium">Your Logo (PNG preferred)</Label>
+            <Label className="text-sm font-medium">Upload your logo or photo</Label>
             <input
               ref={fileInputRef}
               type="file"
@@ -474,12 +474,14 @@ function BrandSetupScreen() {
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-medium text-foreground">
-                  {logoDataUrl ? "Replace logo" : "Tap to upload"}
+                  {logoDataUrl ? "Replace image" : "Tap to upload"}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  PNG with transparent background works best
+                  Use your logo, or a photo of yourself — whichever represents your brand best.
                 </span>
               </div>
+
+
               <Upload className="ml-auto size-4 text-muted-foreground" />
             </button>
 
