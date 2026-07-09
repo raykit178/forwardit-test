@@ -645,33 +645,6 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
           </div>
 
 
-          {/* Brand color */}
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium">Brand Colour</Label>
-            <div className="flex items-center gap-3 rounded-xl border border-input bg-background px-3 py-2.5">
-              <label
-                className="relative size-10 shrink-0 rounded-lg border border-input overflow-hidden cursor-pointer"
-                style={{ backgroundColor: brandColor || "#f1f1f1" }}
-              >
-                <input
-                  type="color"
-                  value={brandColor || "#006AFF"}
-                  onChange={(e) => setBrandColor(e.target.value)}
-                  className="absolute inset-0 size-full opacity-0 cursor-pointer"
-                  aria-label="Pick brand colour"
-                />
-              </label>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium uppercase tracking-wide">
-                  {brandColor || "Auto-extracted from logo"}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Tap the swatch to change
-                </span>
-              </div>
-            </div>
-          </div>
-
           {/* Contact number */}
           <div className="flex flex-col gap-2">
             <Label htmlFor="contact-number" className="text-sm font-medium">
