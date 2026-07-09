@@ -432,10 +432,10 @@ function BrandSetupScreen() {
         </header>
 
         <div className="mt-8 flex flex-col gap-6">
-          {/* Business name */}
+          {/* Brand name */}
           <div className="flex flex-col gap-2">
             <Label htmlFor="business-name" className="text-sm font-medium">
-              Business name
+              Brand name (Business or your name)
             </Label>
             <Input
               id="business-name"
