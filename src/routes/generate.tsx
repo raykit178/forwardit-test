@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { GenerateLoadingVisual, GenerateLoadingMicroCopy } from "@/components/generate-loading-visual";
+import { compositeBrandBar } from "@/lib/composite-brand-bar";
 
 
 export const Route = createFileRoute("/generate")({
