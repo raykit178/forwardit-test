@@ -200,9 +200,17 @@ function extractDominantColor(img: HTMLImageElement): string {
   return `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }
 
-function BrandSetupScreen() {
+export interface MockProfile {
+  business_name: string;
+  business_type: string | null;
+  logo_url: string | null;
+  brand_colour: string;
+}
+
+export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } = {}) {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState<string>("");
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
