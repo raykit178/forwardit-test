@@ -456,6 +456,29 @@ function BrandSetupScreen() {
             />
           </div>
 
+          {/* Business type */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="business-type" className="text-sm font-medium">
+              Business type
+            </Label>
+            <Select value={businessType} onValueChange={setBusinessType}>
+              <SelectTrigger id="business-type" className="h-12 rounded-xl text-base">
+                <SelectValue placeholder="Select your business type (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Retail Shop">Retail Shop</SelectItem>
+                <SelectItem value="Restaurant / Food & Beverage">Restaurant / Food & Beverage</SelectItem>
+                <SelectItem value="Salon / Beauty">Salon / Beauty</SelectItem>
+                <SelectItem value="Clinic / Healthcare">Clinic / Healthcare</SelectItem>
+                <SelectItem value="Real Estate">Real Estate</SelectItem>
+                <SelectItem value="Coaching / Tutoring">Coaching / Tutoring</SelectItem>
+                <SelectItem value="Electronics / Mobile">Electronics / Mobile</SelectItem>
+                <SelectItem value="Clothing / Fashion">Clothing / Fashion</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Logo upload */}
           <div className="flex flex-col gap-2">
             <Label className="text-sm font-medium">Upload your logo or photo</Label>
