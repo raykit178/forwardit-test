@@ -112,12 +112,25 @@ export function compositeBrandBar(
         const rightColInnerWidth = rightColInnerRight - rightColInnerLeft;
         const extra = (brand.extraInfo ?? "").trim();
 
-        ctx.textBaseline = "middle";
+        ctx.textBaseline = "top";
+        ctx.textAlign = "left";
+
+        const nameY = brandBarTop + 16;
+        ctx.font = `700 28px 'Noto Sans', 'Noto Sans Devanagari', sans-serif`;
+        ctx.fillStyle = "#222222";
+        const nameText = (brand.businessName || "").toUpperCase();
+        let displayName = nameText;
+        if (ctx.measureText(displayName).width > rightColInnerWidth) {
+          while (displayName.length > 1 && ctx.measureText(displayName + "…").width > rightColInnerWidth) {
+            displayName = displayName.slice(0, -1);
+          }
+          displayName = displayName + "…";
+        }
+        ctx.fillText(displayName, rightColInnerLeft, nameY);
 
         if (extra) {
           ctx.font = `400 26px 'Noto Sans', 'Noto Sans Devanagari', sans-serif`;
           ctx.fillStyle = "#333333";
-          ctx.textAlign = "left";
           const words = extra.split(/\s+/);
           const lines: string[] = [];
           let current = "";
@@ -139,9 +152,7 @@ export function compositeBrandBar(
           }
           const dividerY = brandBarTop + 128;
           const lineHeight = 34;
-          const prevBaseline = ctx.textBaseline;
-          ctx.textBaseline = "top";
-          const firstY = brandBarTop + 40;
+          const firstY = brandBarTop + 52;
           lines.forEach((ln, i) => {
             ctx.fillText(ln, rightColInnerLeft, firstY + i * lineHeight);
           });
@@ -149,11 +160,9 @@ export function compositeBrandBar(
           ctx.fillRect(rightColInnerLeft, dividerY - 0.75, rightColInnerWidth, 1.5);
           ctx.font = `600 36px DM Sans, sans-serif`;
           ctx.fillStyle = "#222222";
-          ctx.textAlign = "left";
           const phoneText = "✆  " + brand.contactNumber;
           const phoneY = brandBarTop + 160;
           ctx.fillText(phoneText, rightColInnerLeft, phoneY);
-          ctx.textBaseline = prevBaseline;
         } else {
           ctx.font = `600 36px DM Sans, sans-serif`;
           ctx.fillStyle = "#222222";
@@ -165,6 +174,7 @@ export function compositeBrandBar(
           ctx.fillText(phoneText, textX, textY);
         }
         ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
 
         drawStamp();
         resolve(cv.toDataURL("image/png"));
