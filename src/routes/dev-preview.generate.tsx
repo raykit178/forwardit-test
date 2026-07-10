@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { compositeBrandBar, type CompositeBrand } from "@/lib/composite-brand-bar";
 import { supabase, SUPABASE_FUNCTIONS_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
@@ -31,11 +31,14 @@ const LANGUAGES = ["English", "Hindi", "Marathi"];
 
 function DevPreviewGenerate() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const prevObjectUrlRef = useRef<string | null>(null);
 
   const [brandBarStyle, setBrandBarStyle] = useState<"style_1" | "style_2">("style_1");
   const [occasion, setOccasion] = useState<string>("Diwali");
   const [style, setStyle] = useState<string>("Vibrant");
   const [language, setLanguage] = useState<string>("English");
+  const [localLogoUrl, setLocalLogoUrl] = useState<string | null>(null);
+  const [aiImageUrl, setAiImageUrl] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -43,17 +46,56 @@ function DevPreviewGenerate() {
 
   const mockBrand: CompositeBrand = {
     businessName: "Test Business",
-    logoDataUrl: PLACEHOLDER_LOGO,
+    logoDataUrl: localLogoUrl ?? PLACEHOLDER_LOGO,
     brandColor: "#0073F8",
     contactNumber: "9876543211",
     extraInfo: "Ward No. 45, Gandhi Chowk, Mangalwar Peth, Pune",
     brandBarStyle,
   };
 
+  useEffect(() => {
+    if (!aiImageUrl) return;
+    let cancelled = false;
+    compositeBrandBar(aiImageUrl, mockBrand, canvasRef.current)
+      .then((composited) => {
+        if (!cancelled) setImageUrl(composited);
+      })
+      .catch(() => {
+        // ignore re-composite errors in dev preview
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [localLogoUrl, brandBarStyle, aiImageUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (prevObjectUrlRef.current) {
+        URL.revokeObjectURL(prevObjectUrlRef.current);
+      }
+    };
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (prevObjectUrlRef.current) {
+      URL.revokeObjectURL(prevObjectUrlRef.current);
+      prevObjectUrlRef.current = null;
+    }
+    if (!file) {
+      setLocalLogoUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    prevObjectUrlRef.current = url;
+    setLocalLogoUrl(url);
+  };
+
   const handleGenerate = async () => {
     setLoading(true);
     setErrorMsg(null);
     setImageUrl(null);
+    setAiImageUrl(null);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token ?? SUPABASE_ANON_KEY;
@@ -69,19 +111,12 @@ function DevPreviewGenerate() {
       if (!res.ok) throw new Error(`Generation failed (${res.status})`);
       const json = (await res.json()) as { imageUrl: string };
       if (!json.imageUrl) throw new Error("No image returned");
-      const composited = await compositeBrandBar(json.imageUrl, mockBrand, canvasRef.current);
-      setImageUrl(composited);
+      setAiImageUrl(json.imageUrl);
     } catch (e) {
       setErrorMsg(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
-  };
-
-  const recompositeOnly = async () => {
-    if (!imageUrl) return;
-    // Re-run compositor on the already-generated AI image is not possible after
-    // brand bar is baked in; user should regenerate to see the alternate style.
   };
 
   return (
@@ -94,6 +129,16 @@ function DevPreviewGenerate() {
         <canvas ref={canvasRef} className="hidden" />
 
         <h1 className="text-xl font-bold">Generate (Dev Preview)</h1>
+
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-medium">Test logo/photo (local only, not saved)</span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:py-2 file:text-sm file:font-medium"
+          />
+        </label>
 
         <div className="flex items-center justify-between rounded-xl border p-3">
           <div>
@@ -169,7 +214,7 @@ function DevPreviewGenerate() {
           <div className="flex flex-col gap-2">
             <img src={imageUrl} alt="Generated preview" className="w-full rounded-xl border" />
             <p className="text-xs text-muted-foreground">
-              Toggle style above and click Generate again to compare.
+              Toggle style above or upload a different logo to compare.
             </p>
           </div>
         )}
