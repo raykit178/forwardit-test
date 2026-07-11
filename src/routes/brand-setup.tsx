@@ -682,6 +682,46 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
             )}
           </div>
 
+          {/* Brand bar style picker */}
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium">Brand bar style</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {(["style_1", "style_2"] as const).map((s) => {
+                const active = brandBarStyle === s;
+                const preview = s === "style_1" ? style1Preview : style2Preview;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setBrandBarStyle(s)}
+                    className={`relative flex flex-col overflow-hidden rounded-xl border-2 bg-background transition-colors ${
+                      active ? "border-foreground" : "border-input"
+                    }`}
+                  >
+                    <div className="relative w-full aspect-[4/1] bg-muted overflow-hidden">
+                      {preview ? (
+                        <img
+                          src={preview}
+                          alt={`${s} preview`}
+                          className="absolute inset-x-0 bottom-0 w-full"
+                        />
+                      ) : null}
+                    </div>
+                    <div className="flex items-center justify-between px-3 py-2">
+                      <span className="text-xs font-medium">
+                        {s === "style_1" ? "Style 1" : "Style 2"}
+                      </span>
+                      {active && (
+                        <span className="flex size-5 items-center justify-center rounded-full bg-foreground text-background">
+                          <Check className="size-3" />
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Contact number */}
           <div className="flex flex-col gap-2">
