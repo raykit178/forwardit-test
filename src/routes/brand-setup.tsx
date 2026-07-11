@@ -13,6 +13,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, ImageIcon, Sparkles, Check } from "lucide-react";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
+import { compositeBrandBar } from "@/lib/composite-brand-bar";
+
+const BRAND_BAR_PLACEHOLDER_BG =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='1024' height='1024'><rect width='1024' height='1024' fill='#e5e7eb'/></svg>`,
+  );
 
 const LATIN_FONTS = ["DM Sans", "Playfair Display", "Oswald"] as const;
 const DEVANAGARI_FONTS = ["Tiro Devanagari Hindi", "Rozha One", "Baloo 2"] as const;
@@ -205,6 +212,7 @@ export interface MockProfile {
   business_type: string | null;
   logo_url: string | null;
   brand_colour: string;
+  brand_bar_style?: "style_1" | "style_2";
 }
 
 export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } = {}) {
@@ -226,6 +234,9 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
   const [selectedFont, setSelectedFont] = useState<string>("DM Sans");
   const [selectedTextColor, setSelectedTextColor] = useState<string>("#013375");
   const [generatingLogo, setGeneratingLogo] = useState(false);
+  const [brandBarStyle, setBrandBarStyle] = useState<"style_1" | "style_2">("style_1");
+  const [style1Preview, setStyle1Preview] = useState<string | null>(null);
+  const [style2Preview, setStyle2Preview] = useState<string | null>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const fontOptions = useMemo(
@@ -317,6 +328,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
       if (mockProfile.business_name) setBusinessName(mockProfile.business_name);
       if (mockProfile.business_type) setBusinessType(mockProfile.business_type);
       if (mockProfile.brand_colour) setBrandColor(mockProfile.brand_colour);
+      if (mockProfile.brand_bar_style) setBrandBarStyle(mockProfile.brand_bar_style);
       if (mockProfile.logo_url) {
         setLogoDataUrl(mockProfile.logo_url);
         setSavedLogoUrl(mockProfile.logo_url);
@@ -330,7 +342,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
       }
       const { data: profile } = await supabase
         .from("profiles")
-        .select("business_name, business_type, logo_url, brand_colour, contact_number, extra_info")
+        .select("business_name, business_type, logo_url, brand_colour, contact_number, extra_info, brand_bar_style")
         .eq("user_id", data.session.user.id)
         .maybeSingle();
       if (profile) {
@@ -340,6 +352,9 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
         if (profile.brand_colour) setBrandColor(profile.brand_colour);
         if (profile.contact_number) setContactNumber(profile.contact_number);
         if (profile.extra_info) setExtraInfo(profile.extra_info);
+        if (profile.brand_bar_style === "style_1" || profile.brand_bar_style === "style_2") {
+          setBrandBarStyle(profile.brand_bar_style);
+        }
         if (profile.logo_url) {
           setLogoDataUrl(profile.logo_url);
           setSavedLogoUrl(profile.logo_url);
@@ -347,6 +362,28 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
       }
     });
   }, [navigate, mockProfile]);
+
+  // Live mini previews for the brand-bar style picker.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const base = {
+        businessName: businessName.trim() || "Your Business Name",
+        logoDataUrl: logoDataUrl,
+        brandColor: brandColor || "#006AFF",
+        contactNumber: contactNumber.trim() || "98765 43210",
+        extraInfo: extraInfo.trim() ? extraInfo.trim() : "Your address or tagline",
+      };
+      let cancelled = false;
+      compositeBrandBar(BRAND_BAR_PLACEHOLDER_BG, { ...base, brandBarStyle: "style_1" })
+        .then((u) => { if (!cancelled) setStyle1Preview(u); })
+        .catch(() => {});
+      compositeBrandBar(BRAND_BAR_PLACEHOLDER_BG, { ...base, brandBarStyle: "style_2" })
+        .then((u) => { if (!cancelled) setStyle2Preview(u); })
+        .catch(() => {});
+      return () => { cancelled = true; };
+    }, 200);
+    return () => clearTimeout(t);
+  }, [businessName, logoDataUrl, brandColor, contactNumber, extraInfo]);
 
 
   const hasLogo = logoFile !== null || (isEditing && savedLogoUrl !== null);
@@ -438,6 +475,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
         brand_colour: brandColor,
         contact_number: contactNumber,
         extra_info: extraInfo.trim() ? extraInfo.trim() : null,
+        brand_bar_style: brandBarStyle,
       });
       if (insErr) throw insErr;
 
@@ -644,6 +682,46 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
             )}
           </div>
 
+          {/* Brand bar style picker */}
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium">Brand bar style</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {(["style_1", "style_2"] as const).map((s) => {
+                const active = brandBarStyle === s;
+                const preview = s === "style_1" ? style1Preview : style2Preview;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setBrandBarStyle(s)}
+                    className={`relative flex flex-col overflow-hidden rounded-xl border-2 bg-background transition-colors ${
+                      active ? "border-foreground" : "border-input"
+                    }`}
+                  >
+                    <div className="relative w-full aspect-[4/1] bg-muted overflow-hidden">
+                      {preview ? (
+                        <img
+                          src={preview}
+                          alt={`${s} preview`}
+                          className="absolute inset-x-0 bottom-0 w-full"
+                        />
+                      ) : null}
+                    </div>
+                    <div className="flex items-center justify-between px-3 py-2">
+                      <span className="text-xs font-medium">
+                        {s === "style_1" ? "Style 1" : "Style 2"}
+                      </span>
+                      {active && (
+                        <span className="flex size-5 items-center justify-center rounded-full bg-foreground text-background">
+                          <Check className="size-3" />
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Contact number */}
           <div className="flex flex-col gap-2">
