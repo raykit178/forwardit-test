@@ -328,6 +328,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
       if (mockProfile.business_name) setBusinessName(mockProfile.business_name);
       if (mockProfile.business_type) setBusinessType(mockProfile.business_type);
       if (mockProfile.brand_colour) setBrandColor(mockProfile.brand_colour);
+      if (mockProfile.brand_bar_style) setBrandBarStyle(mockProfile.brand_bar_style);
       if (mockProfile.logo_url) {
         setLogoDataUrl(mockProfile.logo_url);
         setSavedLogoUrl(mockProfile.logo_url);
@@ -341,7 +342,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
       }
       const { data: profile } = await supabase
         .from("profiles")
-        .select("business_name, business_type, logo_url, brand_colour, contact_number, extra_info")
+        .select("business_name, business_type, logo_url, brand_colour, contact_number, extra_info, brand_bar_style")
         .eq("user_id", data.session.user.id)
         .maybeSingle();
       if (profile) {
@@ -351,6 +352,9 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
         if (profile.brand_colour) setBrandColor(profile.brand_colour);
         if (profile.contact_number) setContactNumber(profile.contact_number);
         if (profile.extra_info) setExtraInfo(profile.extra_info);
+        if (profile.brand_bar_style === "style_1" || profile.brand_bar_style === "style_2") {
+          setBrandBarStyle(profile.brand_bar_style);
+        }
         if (profile.logo_url) {
           setLogoDataUrl(profile.logo_url);
           setSavedLogoUrl(profile.logo_url);
@@ -358,6 +362,28 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
       }
     });
   }, [navigate, mockProfile]);
+
+  // Live mini previews for the brand-bar style picker.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const base = {
+        businessName: businessName.trim() || "Your Business Name",
+        logoDataUrl: logoDataUrl,
+        brandColor: brandColor || "#006AFF",
+        contactNumber: contactNumber.trim() || "98765 43210",
+        extraInfo: extraInfo.trim() ? extraInfo.trim() : "Your address or tagline",
+      };
+      let cancelled = false;
+      compositeBrandBar(BRAND_BAR_PLACEHOLDER_BG, { ...base, brandBarStyle: "style_1" })
+        .then((u) => { if (!cancelled) setStyle1Preview(u); })
+        .catch(() => {});
+      compositeBrandBar(BRAND_BAR_PLACEHOLDER_BG, { ...base, brandBarStyle: "style_2" })
+        .then((u) => { if (!cancelled) setStyle2Preview(u); })
+        .catch(() => {});
+      return () => { cancelled = true; };
+    }, 200);
+    return () => clearTimeout(t);
+  }, [businessName, logoDataUrl, brandColor, contactNumber, extraInfo]);
 
 
   const hasLogo = logoFile !== null || (isEditing && savedLogoUrl !== null);
