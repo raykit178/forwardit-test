@@ -475,6 +475,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
         brand_colour: brandColor,
         contact_number: contactNumber,
         extra_info: extraInfo.trim() ? extraInfo.trim() : null,
+        brand_bar_style: brandBarStyle,
       });
       if (insErr) throw insErr;
 
