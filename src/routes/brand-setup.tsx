@@ -212,6 +212,7 @@ export interface MockProfile {
   business_type: string | null;
   logo_url: string | null;
   brand_colour: string;
+  brand_bar_style?: "style_1" | "style_2";
 }
 
 export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } = {}) {
