@@ -115,8 +115,8 @@ export function compositeBrandBar(
         ctx.textBaseline = "top";
         ctx.textAlign = "left";
 
-        const nameY = brandBarTop + 16;
-        ctx.font = `700 28px 'Noto Sans', 'Noto Sans Devanagari', sans-serif`;
+        const nameY = brandBarTop + 40;
+        ctx.font = `900 38px 'Noto Sans', 'Noto Sans Devanagari', sans-serif`;
         ctx.fillStyle = "#222222";
         const nameText = (brand.businessName || "").toUpperCase();
         let displayName = nameText;
@@ -150,9 +150,9 @@ export function compositeBrandBar(
             const rest = words.slice(consumed).join(" ");
             if (rest) lines[1] = lines[1] + " " + rest;
           }
-          const dividerY = brandBarTop + 128;
+          const dividerY = brandBarTop + 150;
           const lineHeight = 34;
-          const firstY = brandBarTop + 52;
+          const firstY = brandBarTop + 84;
           lines.forEach((ln, i) => {
             ctx.fillText(ln, rightColInnerLeft, firstY + i * lineHeight);
           });
@@ -161,7 +161,7 @@ export function compositeBrandBar(
           ctx.font = `600 36px DM Sans, sans-serif`;
           ctx.fillStyle = "#222222";
           const phoneText = "✆  " + brand.contactNumber;
-          const phoneY = brandBarTop + 160;
+          const phoneY = brandBarTop + 182;
           ctx.fillText(phoneText, rightColInnerLeft, phoneY);
         } else {
           ctx.font = `600 36px DM Sans, sans-serif`;
@@ -169,7 +169,7 @@ export function compositeBrandBar(
           const phoneText = "✆  " + brand.contactNumber;
           const rightMargin = 40;
           const textX = 1024 - rightMargin;
-          const textY = brandBarTop + 4 + (brandBarHeight - 4) / 2;
+          const textY = brandBarTop + 182;
           ctx.textAlign = "right";
           ctx.fillText(phoneText, textX, textY);
         }
