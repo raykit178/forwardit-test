@@ -234,6 +234,9 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
   const [selectedFont, setSelectedFont] = useState<string>("DM Sans");
   const [selectedTextColor, setSelectedTextColor] = useState<string>("#013375");
   const [generatingLogo, setGeneratingLogo] = useState(false);
+  const [brandBarStyle, setBrandBarStyle] = useState<"style_1" | "style_2">("style_1");
+  const [style1Preview, setStyle1Preview] = useState<string | null>(null);
+  const [style2Preview, setStyle2Preview] = useState<string | null>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const fontOptions = useMemo(
