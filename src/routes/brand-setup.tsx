@@ -13,6 +13,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, ImageIcon, Sparkles, Check } from "lucide-react";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
+import { compositeBrandBar } from "@/lib/composite-brand-bar";
+
+const BRAND_BAR_PLACEHOLDER_BG =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='1024' height='1024'><rect width='1024' height='1024' fill='#e5e7eb'/></svg>`,
+  );
 
 const LATIN_FONTS = ["DM Sans", "Playfair Display", "Oswald"] as const;
 const DEVANAGARI_FONTS = ["Tiro Devanagari Hindi", "Rozha One", "Baloo 2"] as const;
