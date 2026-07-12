@@ -492,296 +492,313 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
       <div className="w-full max-w-[430px] flex flex-col px-6 pt-12 pb-10">
         <header>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Set up your brand
+            {step === 1 ? "Set up your brand" : "Pick how your brand appears"}
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Done once. Used on every image.
+            {step === 1
+              ? "Done once. Used on every image."
+              : "Choose the layout for the brand bar on every image."}
           </p>
         </header>
 
-        <div className="mt-8 flex flex-col gap-6">
-          {/* Brand name */}
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="business-name" className="text-sm font-medium">
-              Brand name (Business or your name)
-            </Label>
-            <Input
-              id="business-name"
-              placeholder="e.g. Sharma Electronics"
-              value={businessName}
-              onChange={(e) => setBusinessName(e.target.value)}
-              className="h-12 rounded-xl text-base"
-            />
-          </div>
+        {step === 1 ? (
+          <div className="mt-8 flex flex-col gap-6">
+            {/* Brand name */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="business-name" className="text-sm font-medium">
+                Brand name (Business or your name)
+              </Label>
+              <Input
+                id="business-name"
+                placeholder="e.g. Sharma Electronics"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                className="h-12 rounded-xl text-base"
+              />
+            </div>
 
-          {/* Business type */}
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="business-type" className="text-sm font-medium">
-              Business type
-            </Label>
-            <Select value={businessType} onValueChange={setBusinessType}>
-              <SelectTrigger id="business-type" className="h-12 rounded-xl text-base">
-                <SelectValue placeholder="Select your business type (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Retail Shop">Retail Shop</SelectItem>
-                <SelectItem value="Restaurant / Food & Beverage">Restaurant / Food & Beverage</SelectItem>
-                <SelectItem value="Salon / Beauty">Salon / Beauty</SelectItem>
-                <SelectItem value="Clinic / Healthcare">Clinic / Healthcare</SelectItem>
-                <SelectItem value="Real Estate">Real Estate</SelectItem>
-                <SelectItem value="Coaching / Tutoring">Coaching / Tutoring</SelectItem>
-                <SelectItem value="Electronics / Mobile">Electronics / Mobile</SelectItem>
-                <SelectItem value="Clothing / Fashion">Clothing / Fashion</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Business type */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="business-type" className="text-sm font-medium">
+                Business type
+              </Label>
+              <Select value={businessType} onValueChange={setBusinessType}>
+                <SelectTrigger id="business-type" className="h-12 rounded-xl text-base">
+                  <SelectValue placeholder="Select your business type (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Retail Shop">Retail Shop</SelectItem>
+                  <SelectItem value="Restaurant / Food & Beverage">Restaurant / Food & Beverage</SelectItem>
+                  <SelectItem value="Salon / Beauty">Salon / Beauty</SelectItem>
+                  <SelectItem value="Clinic / Healthcare">Clinic / Healthcare</SelectItem>
+                  <SelectItem value="Real Estate">Real Estate</SelectItem>
+                  <SelectItem value="Coaching / Tutoring">Coaching / Tutoring</SelectItem>
+                  <SelectItem value="Electronics / Mobile">Electronics / Mobile</SelectItem>
+                  <SelectItem value="Clothing / Fashion">Clothing / Fashion</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Logo upload */}
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium">Upload your logo or photo</Label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml"
-              onChange={handleFile}
-              className="hidden"
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="group flex items-center gap-3 rounded-xl border border-dashed border-input bg-muted/30 px-4 py-4 text-left transition-colors hover:bg-muted/60"
-            >
-              <div className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-background border border-input overflow-hidden">
-                {logoDataUrl ? (
-                  <img
-                    src={logoDataUrl}
-                    alt="Logo preview"
-                    className="size-full object-contain"
-                  />
-                ) : (
-                  <ImageIcon className="size-5 text-muted-foreground" />
-                )}
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">
-                  {logoDataUrl ? "Replace image" : "Tap to upload"}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Use your logo, or a photo of yourself — whichever represents your brand best.
-                </span>
-              </div>
-
-
-              <Upload className="ml-auto size-4 text-muted-foreground" />
-            </button>
-
-            {/* Text logo generator trigger */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowTextGen((v) => !v)}
-              className="mt-1 h-11 rounded-xl bg-transparent hover:bg-transparent"
-            >
-              <Sparkles className="size-4" />
-              Don't have a logo? Generate one
-            </Button>
-
-            {showTextGen && (
-              <div className="mt-3 flex flex-col gap-4 rounded-xl border border-input bg-muted/20 p-4">
-                {!businessName.trim() && (
-                  <p className="text-xs text-muted-foreground">
-                    Enter your business name above to preview the text logo.
-                  </p>
-                )}
-
-                {/* Font options */}
-                <div className="flex flex-col gap-2">
-                  <Label className="text-xs font-medium text-muted-foreground">
-                    Choose a font
-                  </Label>
-                  <div className="flex flex-wrap gap-2">
-                    {fontOptions.map((font) => {
-                      const active = selectedFont === font;
-                      return (
-                        <button
-                          key={font}
-                          type="button"
-                          onClick={() => setSelectedFont(font)}
-                          style={{ fontFamily: `"${font}", system-ui, sans-serif` }}
-                          className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                            active
-                              ? "bg-foreground text-background"
-                              : "bg-background text-foreground border border-input"
-                          }`}
-                        >
-                          {businessName.trim() || "Your Brand"}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Colour swatches */}
-                <div className="flex flex-col gap-2">
-                  <Label className="text-xs font-medium text-muted-foreground">
-                    Choose a colour
-                  </Label>
-                  <div className="flex gap-3">
-                    {TEXT_LOGO_COLORS.map((c) => {
-                      const active = selectedTextColor === c;
-                      return (
-                        <button
-                          key={c}
-                          type="button"
-                          aria-label={c}
-                          onClick={() => setSelectedTextColor(c)}
-                          className={`size-9 rounded-full flex items-center justify-center transition-transform ${
-                            active ? "ring-2 ring-offset-2 ring-foreground scale-110" : ""
-                          }`}
-                          style={{ backgroundColor: c }}
-                        >
-                          {active && <Check className="size-4 text-white" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Live preview */}
-                <div className="flex flex-col gap-2">
-                  <Label className="text-xs font-medium text-muted-foreground">
-                    Preview
-                  </Label>
-                  <div className="flex justify-center">
-                    <canvas
-                      ref={previewCanvasRef}
-                      width={256}
-                      height={102}
-                      style={{ width: 256, height: 102 }}
-                      className="rounded-lg"
+            {/* Logo upload */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium">Upload your logo or photo</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml"
+                onChange={handleFile}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="group flex items-center gap-3 rounded-xl border border-dashed border-input bg-muted/30 px-4 py-4 text-left transition-colors hover:bg-muted/60"
+              >
+                <div className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-background border border-input overflow-hidden">
+                  {logoDataUrl ? (
+                    <img
+                      src={logoDataUrl}
+                      alt="Logo preview"
+                      className="size-full object-contain"
                     />
-                  </div>
+                  ) : (
+                    <ImageIcon className="size-5 text-muted-foreground" />
+                  )}
                 </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-foreground">
+                    {logoDataUrl ? "Replace image" : "Tap to upload"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Use your logo, or a photo of yourself — whichever represents your brand best.
+                  </span>
+                </div>
+                <Upload className="ml-auto size-4 text-muted-foreground" />
+              </button>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={!businessName.trim() || generatingLogo}
-                  onClick={handleUseTextLogo}
-                  className="h-11 rounded-xl bg-transparent hover:bg-transparent"
-                >
-                  {generatingLogo ? "Generating..." : "Use this as my logo"}
-                </Button>
-              </div>
-            )}
+              {/* Text logo generator trigger */}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowTextGen((v) => !v)}
+                className="mt-1 h-11 rounded-xl bg-transparent hover:bg-transparent"
+              >
+                <Sparkles className="size-4" />
+                Don't have a logo? Generate one
+              </Button>
+
+              {showTextGen && (
+                <div className="mt-3 flex flex-col gap-4 rounded-xl border border-input bg-muted/20 p-4">
+                  {!businessName.trim() && (
+                    <p className="text-xs text-muted-foreground">
+                      Enter your business name above to preview the text logo.
+                    </p>
+                  )}
+
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-xs font-medium text-muted-foreground">
+                      Choose a font
+                    </Label>
+                    <div className="flex flex-wrap gap-2">
+                      {fontOptions.map((font) => {
+                        const active = selectedFont === font;
+                        return (
+                          <button
+                            key={font}
+                            type="button"
+                            onClick={() => setSelectedFont(font)}
+                            style={{ fontFamily: `"${font}", system-ui, sans-serif` }}
+                            className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                              active
+                                ? "bg-foreground text-background"
+                                : "bg-background text-foreground border border-input"
+                            }`}
+                          >
+                            {businessName.trim() || "Your Brand"}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-xs font-medium text-muted-foreground">
+                      Choose a colour
+                    </Label>
+                    <div className="flex gap-3">
+                      {TEXT_LOGO_COLORS.map((c) => {
+                        const active = selectedTextColor === c;
+                        return (
+                          <button
+                            key={c}
+                            type="button"
+                            aria-label={c}
+                            onClick={() => setSelectedTextColor(c)}
+                            className={`size-9 rounded-full flex items-center justify-center transition-transform ${
+                              active ? "ring-2 ring-offset-2 ring-foreground scale-110" : ""
+                            }`}
+                            style={{ backgroundColor: c }}
+                          >
+                            {active && <Check className="size-4 text-white" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-xs font-medium text-muted-foreground">
+                      Preview
+                    </Label>
+                    <div className="flex justify-center">
+                      <canvas
+                        ref={previewCanvasRef}
+                        width={256}
+                        height={102}
+                        style={{ width: 256, height: 102 }}
+                        className="rounded-lg"
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={!businessName.trim() || generatingLogo}
+                    onClick={handleUseTextLogo}
+                    className="h-11 rounded-xl bg-transparent hover:bg-transparent"
+                  >
+                    {generatingLogo ? "Generating..." : "Use this as my logo"}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Contact number */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="contact-number" className="text-sm font-medium">
+                Contact Number
+              </Label>
+              <Input
+                id="contact-number"
+                placeholder="e.g. 98765 43210"
+                value={contactNumber}
+                onChange={(e) => setContactNumber(e.target.value)}
+                className="h-12 rounded-xl text-base"
+              />
+            </div>
+
+            {/* Extra info */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="extra-info" className="text-sm font-medium">
+                Extra info (optional)
+              </Label>
+              <Textarea
+                id="extra-info"
+                placeholder="e.g. Address, Instagram handle, Tagline, etc."
+                value={extraInfo}
+                maxLength={EXTRA_INFO_MAX}
+                rows={1}
+                onChange={(e) => {
+                  setExtraInfo(e.target.value);
+                  const el = e.currentTarget;
+                  el.style.height = "auto";
+                  el.style.height = `${el.scrollHeight}px`;
+                }}
+                className="min-h-12 rounded-xl text-base resize-none overflow-hidden whitespace-pre-wrap break-words py-3"
+              />
+              <p
+                className="text-xs"
+                style={{
+                  color:
+                    extraInfo.length <= 40
+                      ? "#888888"
+                      : extraInfo.length <= 50
+                        ? "#F59E0B"
+                        : "#EF4444",
+                }}
+              >
+                {extraInfo.length === EXTRA_INFO_MAX
+                  ? `${extraInfo.length}/${EXTRA_INFO_MAX} characters — limit reached`
+                  : `${extraInfo.length}/${EXTRA_INFO_MAX} characters`}
+              </p>
+            </div>
           </div>
-
-          {/* Brand bar style picker */}
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium">Brand bar style</Label>
-            <div className="grid grid-cols-2 gap-3">
+        ) : (
+          <div className="mt-8 flex flex-col gap-5">
+            {/* Segmented toggle */}
+            <div className="grid grid-cols-2 gap-1 rounded-xl border border-input bg-muted/40 p-1">
               {(["style_1", "style_2"] as const).map((s) => {
                 const active = brandBarStyle === s;
-                const preview = s === "style_1" ? style1Preview : style2Preview;
                 return (
                   <button
                     key={s}
                     type="button"
                     onClick={() => setBrandBarStyle(s)}
-                    className={`relative flex flex-col overflow-hidden rounded-xl border-2 bg-background transition-colors ${
-                      active ? "border-foreground" : "border-input"
+                    className={`h-10 rounded-lg text-sm font-medium transition-colors ${
+                      active
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground"
                     }`}
                   >
-                    <div className="relative w-full aspect-[4/1] bg-muted overflow-hidden">
-                      {preview ? (
-                        <img
-                          src={preview}
-                          alt={`${s} preview`}
-                          className="absolute inset-x-0 bottom-0 w-full"
-                        />
-                      ) : null}
-                    </div>
-                    <div className="flex items-center justify-between px-3 py-2">
-                      <span className="text-xs font-medium">
-                        {s === "style_1" ? "Style 1" : "Style 2"}
-                      </span>
-                      {active && (
-                        <span className="flex size-5 items-center justify-center rounded-full bg-foreground text-background">
-                          <Check className="size-3" />
-                        </span>
-                      )}
-                    </div>
+                    {s === "style_1" ? "Style 1" : "Style 2"}
                   </button>
                 );
               })}
             </div>
-          </div>
 
-          {/* Contact number */}
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="contact-number" className="text-sm font-medium">
-              Contact Number
-            </Label>
-            <Input
-              id="contact-number"
-              placeholder="e.g. 98765 43210"
-              value={contactNumber}
-              onChange={(e) => setContactNumber(e.target.value)}
-              className="h-12 rounded-xl text-base"
-            />
+            {/* Large preview */}
+            <div className="relative w-full aspect-square overflow-hidden rounded-2xl border border-input bg-muted">
+              {stepPreview ? (
+                <img
+                  src={stepPreview}
+                  alt="Brand bar preview"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+                  Rendering preview…
+                </div>
+              )}
+            </div>
           </div>
-
-          {/* Extra info */}
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="extra-info" className="text-sm font-medium">
-              Extra info (optional)
-            </Label>
-            <Textarea
-              id="extra-info"
-              placeholder="e.g. Address, Instagram handle, Tagline, etc."
-              value={extraInfo}
-              maxLength={EXTRA_INFO_MAX}
-              rows={1}
-              onChange={(e) => {
-                setExtraInfo(e.target.value);
-                const el = e.currentTarget;
-                el.style.height = "auto";
-                el.style.height = `${el.scrollHeight}px`;
-              }}
-              className="min-h-12 rounded-xl text-base resize-none overflow-hidden whitespace-pre-wrap break-words py-3"
-            />
-            <p
-              className="text-xs"
-              style={{
-                color:
-                  extraInfo.length <= 40
-                    ? "#888888"
-                    : extraInfo.length <= 50
-                      ? "#F59E0B"
-                      : "#EF4444",
-              }}
-            >
-              {extraInfo.length === EXTRA_INFO_MAX
-                ? `${extraInfo.length}/${EXTRA_INFO_MAX} characters — limit reached`
-                : `${extraInfo.length}/${EXTRA_INFO_MAX} characters`}
-            </p>
-          </div>
-        </div>
-
+        )}
 
         <div className="mt-auto pt-10">
           {error && (
             <p className="mb-3 text-xs text-destructive text-center">{error}</p>
           )}
-          <Button
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            size="lg"
-            className="w-full h-12 text-base font-medium rounded-xl"
-          >
-            {saving ? "Saving..." : isEditing ? "Save changes" : "Get started"}
-          </Button>
+          {step === 1 ? (
+            <Button
+              onClick={() => setStep(2)}
+              disabled={!canSubmit}
+              size="lg"
+              className="w-full h-12 text-base font-medium rounded-xl"
+            >
+              Continue
+            </Button>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <Button
+                onClick={handleSubmit}
+                disabled={!canSubmit}
+                size="lg"
+                className="w-full h-12 text-base font-medium rounded-xl"
+              >
+                {saving ? "Saving..." : isEditing ? "Save changes" : "Continue"}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                disabled={saving}
+                className="inline-flex items-center justify-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="size-4" />
+                Back
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </main>
