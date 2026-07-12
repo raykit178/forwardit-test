@@ -361,27 +361,24 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
     });
   }, [navigate, mockProfile]);
 
-  // Live mini previews for the brand-bar style picker.
+  // Live large preview for step 2 (single card, currently selected style).
   useEffect(() => {
+    if (step !== 2) return;
+    let cancelled = false;
     const t = setTimeout(() => {
       const base = {
         businessName: businessName.trim() || "Your Business Name",
         logoDataUrl: logoDataUrl,
         brandColor: brandColor || "#006AFF",
         contactNumber: contactNumber.trim() || "98765 43210",
-        extraInfo: extraInfo.trim() ? extraInfo.trim() : "Your address or tagline",
+        extraInfo: extraInfo.trim() ? extraInfo.trim() : null,
       };
-      let cancelled = false;
-      compositeBrandBar(BRAND_BAR_PLACEHOLDER_BG, { ...base, brandBarStyle: "style_1" })
-        .then((u) => { if (!cancelled) setStyle1Preview(u); })
+      compositeBrandBar(SAMPLE_BG_URL, { ...base, brandBarStyle })
+        .then((u) => { if (!cancelled) setStepPreview(u); })
         .catch(() => {});
-      compositeBrandBar(BRAND_BAR_PLACEHOLDER_BG, { ...base, brandBarStyle: "style_2" })
-        .then((u) => { if (!cancelled) setStyle2Preview(u); })
-        .catch(() => {});
-      return () => { cancelled = true; };
-    }, 200);
-    return () => clearTimeout(t);
-  }, [businessName, logoDataUrl, brandColor, contactNumber, extraInfo]);
+    }, 50);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [step, brandBarStyle, businessName, logoDataUrl, brandColor, contactNumber, extraInfo]);
 
 
   const hasLogo = logoFile !== null || (isEditing && savedLogoUrl !== null);
