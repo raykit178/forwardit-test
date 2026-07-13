@@ -697,11 +697,16 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
               </Label>
               <Input
                 id="contact-number"
-                placeholder="e.g. 98765 43210"
+                type="tel"
+                inputMode="numeric"
+                placeholder="e.g. 9876543210"
                 value={contactNumber}
-                onChange={(e) => setContactNumber(e.target.value)}
+                onChange={handleContactChange}
                 className="h-12 rounded-xl text-base"
               />
+              {contactNumberError && (
+                <p className="text-xs text-destructive">{contactNumberError}</p>
+              )}
             </div>
 
             {/* Extra info */}
