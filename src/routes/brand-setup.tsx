@@ -791,7 +791,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
           )}
           {step === 1 ? (
             <Button
-              onClick={() => setStep(2)}
+              onClick={goToStep2}
               disabled={!canSubmit}
               size="lg"
               className="w-full h-12 text-base font-medium rounded-xl"
