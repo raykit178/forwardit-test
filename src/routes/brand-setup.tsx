@@ -222,6 +222,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [brandColor, setBrandColor] = useState<string>("");
   const [contactNumber, setContactNumber] = useState("");
+  const [contactNumberError, setContactNumberError] = useState<string | null>(null);
   const [extraInfo, setExtraInfo] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -387,6 +388,21 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
     brandColor !== "" &&
     contactNumber.trim().length > 0 &&
     !saving;
+
+  const handleContactChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setContactNumber(digits);
+    if (contactNumberError) setContactNumberError(null);
+  };
+
+  const goToStep2 = () => {
+    if (contactNumber.length !== 10) {
+      setContactNumberError("Enter a valid 10-digit phone number");
+      return;
+    }
+    setContactNumberError(null);
+    setStep(2);
+  };
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -681,11 +697,16 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
               </Label>
               <Input
                 id="contact-number"
-                placeholder="e.g. 98765 43210"
+                type="tel"
+                inputMode="numeric"
+                placeholder="e.g. 9876543210"
                 value={contactNumber}
-                onChange={(e) => setContactNumber(e.target.value)}
+                onChange={handleContactChange}
                 className="h-12 rounded-xl text-base"
               />
+              {contactNumberError && (
+                <p className="text-xs text-destructive">{contactNumberError}</p>
+              )}
             </div>
 
             {/* Extra info */}
@@ -735,10 +756,10 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
                     key={s}
                     type="button"
                     onClick={() => setBrandBarStyle(s)}
-                    className={`h-10 rounded-lg text-sm font-medium transition-colors ${
+                    className={`h-10 rounded-lg text-sm font-semibold transition-colors ${
                       active
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground"
+                        ? "bg-[#0073F8] text-white shadow-sm"
+                        : "bg-transparent text-foreground"
                     }`}
                   >
                     {s === "style_1" ? "Style 1" : "Style 2"}
@@ -770,7 +791,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
           )}
           {step === 1 ? (
             <Button
-              onClick={() => setStep(2)}
+              onClick={goToStep2}
               disabled={!canSubmit}
               size="lg"
               className="w-full h-12 text-base font-medium rounded-xl"
