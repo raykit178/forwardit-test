@@ -756,16 +756,16 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
                     key={s}
                     type="button"
                     onClick={() => setBrandBarStyle(s)}
-                    className={`h-10 rounded-lg text-sm font-medium transition-colors ${
+                    className={`h-10 rounded-lg text-sm font-semibold transition-colors ${
                       active
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground"
+                        ? "bg-[#0073F8] text-white shadow-sm"
+                        : "bg-transparent text-foreground"
                     }`}
                   >
                     {s === "style_1" ? "Style 1" : "Style 2"}
                   </button>
                 );
-              })}
+              )}
             </div>
 
             {/* Large preview */}
