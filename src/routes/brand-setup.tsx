@@ -15,9 +15,8 @@ import { Upload, ImageIcon, Sparkles, Check } from "lucide-react";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
 import { compositeBrandBar } from "@/lib/composite-brand-bar";
 import { ArrowLeft } from "lucide-react";
-import sampleBgAsset from "@/assets/sample-greeting.jpg.asset.json";
-
-const SAMPLE_BG_URL = sampleBgAsset.url;
+const SAMPLE_BG_URL =
+  "https://xmjqfzwgontqjtylcmnd.supabase.co/storage/v1/object/public/generations/Frwrdit%20sample%20logo%20-%20diwali.jpg";
 
 const LATIN_FONTS = ["DM Sans", "Playfair Display", "Oswald"] as const;
 const DEVANAGARI_FONTS = ["Tiro Devanagari Hindi", "Rozha One", "Baloo 2"] as const;
