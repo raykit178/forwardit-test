@@ -222,6 +222,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [brandColor, setBrandColor] = useState<string>("");
   const [contactNumber, setContactNumber] = useState("");
+  const [contactNumberError, setContactNumberError] = useState<string | null>(null);
   const [extraInfo, setExtraInfo] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
