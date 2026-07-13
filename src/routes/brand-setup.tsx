@@ -765,7 +765,7 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
                     {s === "style_1" ? "Style 1" : "Style 2"}
                   </button>
                 );
-              )}
+              })}
             </div>
 
             {/* Large preview */}
