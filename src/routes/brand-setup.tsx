@@ -389,6 +389,21 @@ export function BrandSetupScreen({ mockProfile }: { mockProfile?: MockProfile } 
     contactNumber.trim().length > 0 &&
     !saving;
 
+  const handleContactChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setContactNumber(digits);
+    if (contactNumberError) setContactNumberError(null);
+  };
+
+  const goToStep2 = () => {
+    if (contactNumber.length !== 10) {
+      setContactNumberError("Enter a valid 10-digit phone number");
+      return;
+    }
+    setContactNumberError(null);
+    setStep(2);
+  };
+
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
